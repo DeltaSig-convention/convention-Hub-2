@@ -18,7 +18,6 @@ const PAY_STATUS = ["Not started","Requested","Approved","Paid","Reimbursed"];
 const PAY_METHOD = ["—","ACH/Wire","Card","Check","Invoice","Reimbursement"];
 const SPONSOR_STAGES = ["Prospect","Contacted","Committed","Invoiced","Paid"];
 const STAGE_COLOR = { Prospect:"#9aa39a", Contacted:"#5b8c7b", Committed:C.gold, Invoiced:C.nile, Paid:C.pos };
-const EVENT_STATUS_COLOR = { confirmed:C.pos, tbd:C.muted, pending:C.warn };
 const BLOCK_KIND_COLOR = { event:C.nile, duty:C.gold, floating:"#7a9e57" };
 
 /* ----------------------------- room & AV reference lists ----------------------------- */
@@ -88,1324 +87,1124 @@ const AV_ITEMS = ["Podium mic", "Wireless mic(s)", "Floor/delegate mics on stand
 
 /* ----------------------------- seed data ----------------------------- */
 const SEED_SCHEDULE = [
-  {
-    "id": "ev1",
-    "date": "2027-08-04",
-    "start": "08:00",
-    "end": "17:00",
-    "allDay": false,
-    "name": "Convention Set Up",
-    "category": "Logistics",
-    "owner": "Diane / Venue",
-    "rooms": [
-      "Majestic Ballroom (All)",
-      "Foyers"
-    ],
-    "setup": "Load-In",
-    "avNote": "N/A",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev2",
-    "date": "2027-08-04",
-    "start": "14:00",
-    "end": "15:30",
-    "allDay": false,
-    "name": "Hotel Pre-Con Walkthrough",
-    "category": "Logistics",
-    "owner": "Andrew / Diane",
-    "rooms": [],
-    "setup": "Walkthrough",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev3",
-    "date": "2027-08-04",
-    "start": "15:30",
-    "end": "17:00",
-    "allDay": false,
-    "name": "High Level ICA Review",
-    "category": "Logistics",
-    "owner": "Andrew",
-    "rooms": [
-      "Gold Office"
-    ],
-    "setup": "Staff only",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev4",
-    "date": "2027-08-04",
-    "start": "15:30",
-    "end": "17:00",
-    "allDay": false,
-    "name": "Staff Meal",
-    "category": "Logistics",
-    "owner": "Diane",
-    "rooms": [],
-    "setup": "",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev5",
-    "date": "2027-08-04",
-    "start": "17:00",
-    "end": "18:00",
-    "allDay": false,
-    "name": "Initial Staff Meeting & Walkthrough",
-    "category": "Logistics",
-    "owner": "Andrew",
-    "rooms": [
-      "Gold Office"
-    ],
-    "setup": "Conference",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev6",
-    "date": "2027-08-04",
-    "start": "18:00",
-    "end": "18:30",
-    "allDay": false,
-    "name": "Boards & Staff Welcome Reception",
-    "category": "Social/Reception",
-    "owner": "Andrew",
-    "rooms": [
-      "Keys Boardroom"
-    ],
-    "setup": "Reception / Cocktail",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev7",
-    "date": "2027-08-04",
-    "start": "18:30",
-    "end": "20:30",
-    "allDay": false,
-    "name": "Early Attendee Gathering",
-    "category": "Social/Reception",
-    "owner": "Andrew",
-    "rooms": [
-      "Majestic South Foyer",
-      "Royal South Foyer"
-    ],
-    "setup": "Reception / Casual",
-    "avNote": "Music",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Background music speaker"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev8",
-    "date": "2027-08-05",
-    "start": "07:00",
-    "end": "07:30",
-    "allDay": false,
-    "name": "Staff Morning Meeting",
-    "category": "Logistics",
-    "owner": "Andrew",
-    "rooms": [
-      "Gold Office"
-    ],
-    "setup": "Conference",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev9",
-    "date": "2027-08-05",
-    "start": "09:00",
-    "end": "10:00",
-    "allDay": false,
-    "name": "Grand Council Meeting",
-    "category": "Logistics",
-    "owner": "Grand Council",
-    "rooms": [
-      "Keys Boardroom"
-    ],
-    "setup": "U-Shape",
-    "avNote": "Projection",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Large projection screen(s)"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev10",
-    "date": "2027-08-05",
-    "start": "10:00",
-    "end": "16:00",
-    "allDay": false,
-    "name": "Convention Registration Opens",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Royal South Foyer",
-      "Historic Display"
-    ],
-    "setup": "Exhibit / Tables",
-    "avNote": "Music",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Background music speaker"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev11",
-    "date": "2027-08-05",
-    "start": "10:00",
-    "end": "11:00",
-    "allDay": false,
-    "name": "Foundation & Campaign Meeting",
-    "category": "Logistics",
-    "owner": "Foundation",
-    "rooms": [
-      "Keys Boardroom"
-    ],
-    "setup": "Conference",
-    "avNote": "Projection",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Large projection screen(s)"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev12",
-    "date": "2027-08-05",
-    "start": "11:00",
-    "end": "12:00",
-    "allDay": false,
-    "name": "Committee Meetings (Ritual, DEI, Resolutions, Housing)",
-    "category": "Logistics",
-    "owner": "Board",
-    "rooms": [
-      "Palmetto 1\u20134 (one each)"
-    ],
-    "setup": "U-Shape",
-    "avNote": "Projection per room",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Large projection screen(s)"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev13",
-    "date": "2027-08-05",
-    "start": "11:30",
-    "end": "13:00",
-    "allDay": false,
-    "name": "Staff Lunch",
-    "category": "Logistics",
-    "owner": "Diane",
-    "rooms": [],
-    "setup": "",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev14",
-    "date": "2027-08-05",
-    "start": "12:00",
-    "end": "13:00",
-    "allDay": false,
-    "name": "Singing Pilgrims Rehearsal",
-    "category": "Logistics",
-    "owner": "Singing Pilgrims",
-    "rooms": [
-      "Palmetto 11"
-    ],
-    "setup": "Open / Special",
-    "avNote": "Speaker / Music",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Background music speaker"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev15",
-    "date": "2027-08-05",
-    "start": "13:00",
-    "end": "14:30",
-    "allDay": false,
-    "name": "Alumni Initiation Ceremony",
-    "category": "Ceremony",
-    "owner": "Andrew",
-    "rooms": [
-      "Royal Ballroom (All)"
-    ],
-    "setup": "Special / Empty",
-    "avNote": "Projection + Audio",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Large projection screen(s)",
-      "Full audio mix"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev16",
-    "date": "2027-08-05",
-    "start": "15:00",
-    "end": "16:30",
-    "allDay": false,
-    "name": "Pilgrim Degree",
-    "category": "Ceremony",
-    "owner": "Andrew",
-    "rooms": [
-      "Royal Ballroom (All)"
-    ],
-    "setup": "Special / Empty",
-    "avNote": "Projection + Audio",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Large projection screen(s)",
-      "Full audio mix"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev17",
-    "date": "2027-08-05",
-    "start": "16:30",
-    "end": "17:30",
-    "allDay": false,
-    "name": "Transition / Pool & Common Areas Open",
-    "category": "Social/Reception",
-    "owner": "Andrew",
-    "rooms": [
-      "Common Areas",
-      "Pool"
-    ],
-    "setup": "Open",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev18",
-    "date": "2027-08-05",
-    "start": "17:30",
-    "end": "18:00",
-    "allDay": false,
-    "name": "Raise the Fez Donor Meet & Greet",
-    "category": "Donor/Society",
-    "owner": "Foundation",
-    "rooms": [
-      "TBD"
-    ],
-    "setup": "Cocktail / Low Tops",
-    "avNote": "Speaker / Music",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Background music speaker"
-    ],
-    "status": "tbd",
-    "assignees": []
-  },
-  {
-    "id": "ev19",
-    "date": "2027-08-05",
-    "start": "17:30",
-    "end": "18:30",
-    "allDay": false,
-    "name": "Welcome ICA + Guest Reception",
-    "category": "Programming",
-    "owner": "Andrew",
-    "rooms": [
-      "Majestic Ballroom (All)",
-      "Jenkins Suite"
-    ],
-    "setup": "ICA + Reception",
-    "avNote": "Full A/V",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Large projection screen(s)",
-      "Projector(s)",
-      "Full audio mix",
-      "Full stage lighting"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev20",
-    "date": "2027-08-05",
-    "start": "19:30",
-    "end": "21:00",
-    "allDay": false,
-    "name": "Welcome Reception + Brotherhood Circles",
-    "category": "Social/Reception",
-    "owner": "Andrew",
-    "rooms": [
-      "Majestic South Foyer",
-      "Royal South Foyer",
-      "Porte Cochere"
-    ],
-    "setup": "Reception (Indoor/Outdoor)",
-    "avNote": "Music + Live Music Setup",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Background music speaker"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev21",
-    "date": "2027-08-05",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "ICA / Business Meeting Room",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Majestic Ballroom (All)"
-    ],
-    "setup": "Full ICA Setup",
-    "avNote": "Full A/V, Projection, Audio",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Large projection screen(s)",
-      "Projector(s)",
-      "Full audio mix",
-      "Full stage lighting"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev22",
-    "date": "2027-08-05",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Michelle's Closet",
-    "category": "Programming",
-    "owner": "Andrew",
-    "rooms": [
-      "Palmetto 7"
-    ],
-    "setup": "Exhibit",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev23",
-    "date": "2027-08-05",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Business Operations",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Palmetto 8"
-    ],
-    "setup": "Exhibit",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev24",
-    "date": "2027-08-05",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Housing Experience",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Palmetto 10"
-    ],
-    "setup": "Exhibit",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev25",
-    "date": "2027-08-05",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Registration Experience + Vendors",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Royal South Foyer",
-      "Majestic South Foyer"
-    ],
-    "setup": "Exhibit / Tables",
-    "avNote": "Music",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Background music speaker"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev26",
-    "date": "2027-08-05",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Staff Office",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Gold Office"
-    ],
-    "setup": "Conference / Storage",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev27",
-    "date": "2027-08-06",
-    "start": "07:00",
-    "end": "07:30",
-    "allDay": false,
-    "name": "Staff Morning Meeting",
-    "category": "Logistics",
-    "owner": "Andrew",
-    "rooms": [
-      "Gold Office"
-    ],
-    "setup": "Conference",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev28",
-    "date": "2027-08-06",
-    "start": "09:00",
-    "end": "10:00",
-    "allDay": false,
-    "name": "Keynote Speaker",
-    "category": "Programming",
-    "owner": "Andrew",
-    "rooms": [
-      "Majestic Ballroom (All)"
-    ],
-    "setup": "Theater / Plenary",
-    "avNote": "Full A/V, Stage, Lighting",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Large projection screen(s)",
-      "Projector(s)",
-      "Full audio mix",
-      "Full stage lighting"
-    ],
-    "status": "pending",
-    "assignees": []
-  },
-  {
-    "id": "ev29",
-    "date": "2027-08-06",
-    "start": "10:00",
-    "end": "12:00",
-    "allDay": false,
-    "name": "ICA Session 2",
-    "category": "Programming",
-    "owner": "Andrew",
-    "rooms": [
-      "Majestic Ballroom (All)"
-    ],
-    "setup": "Full ICA Setup",
-    "avNote": "Full A/V",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Large projection screen(s)",
-      "Projector(s)",
-      "Full audio mix",
-      "Full stage lighting"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev30",
-    "date": "2027-08-06",
-    "start": "10:00",
-    "end": "12:00",
-    "allDay": false,
-    "name": "Guest Event \u2014 Offsite Excursion",
-    "category": "Guest Event",
-    "owner": "Andrew / Diane",
-    "rooms": [
-      "Offsite"
-    ],
-    "setup": "N/A",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "tbd",
-    "assignees": []
-  },
-  {
-    "id": "ev31",
-    "date": "2027-08-06",
-    "start": "12:00",
-    "end": "13:00",
-    "allDay": false,
-    "name": "Staff Lunch",
-    "category": "Logistics",
-    "owner": "Diane",
-    "rooms": [],
-    "setup": "",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev32",
-    "date": "2027-08-06",
-    "start": "13:00",
-    "end": "17:00",
-    "allDay": false,
-    "name": "Undergraduate Educational Sessions",
-    "category": "Programming",
-    "owner": "Andrew",
-    "rooms": [
-      "Palmetto rooms (TBD)"
-    ],
-    "setup": "Classroom",
-    "avNote": "Projection per room",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Large projection screen(s)"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev33",
-    "date": "2027-08-06",
-    "start": "13:15",
-    "end": "14:15",
-    "allDay": false,
-    "name": "Alcove Society Reception",
-    "category": "Donor/Society",
-    "owner": "Foundation",
-    "rooms": [
-      "Corsair Restaurant (Private Space)"
-    ],
-    "setup": "Cocktail / Low Tops",
-    "avNote": "Music",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Background music speaker"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev34",
-    "date": "2027-08-06",
-    "start": "14:00",
-    "end": "15:00",
-    "allDay": false,
-    "name": "Singing Pilgrims Rehearsal",
-    "category": "Logistics",
-    "owner": "Singing Pilgrims",
-    "rooms": [
-      "Palmetto 11"
-    ],
-    "setup": "Open / Special",
-    "avNote": "Speaker / Music",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Background music speaker"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev35",
-    "date": "2027-08-06",
-    "start": "17:30",
-    "end": "18:30",
-    "allDay": false,
-    "name": "1899 Society Reception",
-    "category": "Donor/Society",
-    "owner": "Foundation",
-    "rooms": [
-      "Cascata Pool"
-    ],
-    "setup": "Cocktail / Outdoor",
-    "avNote": "Music + Outdoor Audio",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Full audio mix",
-      "Background music speaker",
-      "Outdoor/weatherproof speakers"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev36",
-    "date": "2027-08-06",
-    "start": "18:30",
-    "end": "21:00",
-    "allDay": false,
-    "name": "Foundation Reception + Auction",
-    "category": "Donor/Society",
-    "owner": "Foundation",
-    "rooms": [
-      "Royal Ballroom (All)",
-      "Royal East Foyer",
-      "Magnolia Courtyard"
-    ],
-    "setup": "Reception (Indoor/Outdoor)",
-    "avNote": "Full A/V + Auction Setup",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Large projection screen(s)",
-      "Projector(s)",
-      "Full audio mix",
-      "Full stage lighting",
-      "Podium/banner"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev37",
-    "date": "2027-08-06",
-    "start": "21:00",
-    "end": null,
-    "allDay": false,
-    "name": "Informal Socials / Brotherhood Circles",
-    "category": "Social/Reception",
-    "owner": "Andrew",
-    "rooms": [
-      "Common Areas",
-      "Foyers"
-    ],
-    "setup": "Open",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev38",
-    "date": "2027-08-06",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "ICA / Business Meeting Room",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Majestic Ballroom (All)"
-    ],
-    "setup": "Full ICA Setup",
-    "avNote": "Full A/V",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Large projection screen(s)",
-      "Projector(s)",
-      "Full audio mix",
-      "Full stage lighting"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev39",
-    "date": "2027-08-06",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Michelle's Closet",
-    "category": "Programming",
-    "owner": "Andrew",
-    "rooms": [
-      "Palmetto 7"
-    ],
-    "setup": "Exhibit",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev40",
-    "date": "2027-08-06",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "History Library",
-    "category": "Programming",
-    "owner": "Andrew",
-    "rooms": [
-      "Palmetto 6"
-    ],
-    "setup": "Tables & TVs",
-    "avNote": "TVs",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Flat screen / TV (content loop)"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev41",
-    "date": "2027-08-06",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Business Operations",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Palmetto 8"
-    ],
-    "setup": "Exhibit",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev42",
-    "date": "2027-08-06",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Housing Experience",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Palmetto 10"
-    ],
-    "setup": "Exhibit",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev43",
-    "date": "2027-08-06",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Staff Office",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Gold Office"
-    ],
-    "setup": "Conference / Storage",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev44",
-    "date": "2027-08-07",
-    "start": "07:00",
-    "end": "07:30",
-    "allDay": false,
-    "name": "Staff Morning Meeting",
-    "category": "Logistics",
-    "owner": "Andrew",
-    "rooms": [
-      "Gold Office"
-    ],
-    "setup": "Conference",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev45",
-    "date": "2027-08-07",
-    "start": "08:30",
-    "end": "09:15",
-    "allDay": false,
-    "name": "Bond Eternal Ceremony",
-    "category": "Ceremony",
-    "owner": "Andrew",
-    "rooms": [
-      "Majestic Ballroom (All)"
-    ],
-    "setup": "Special / Empty",
-    "avNote": "Projection + Audio",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Large projection screen(s)",
-      "Full audio mix"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev46",
-    "date": "2027-08-07",
-    "start": "09:30",
-    "end": "11:30",
-    "allDay": false,
-    "name": "ICA Session 4",
-    "category": "Programming",
-    "owner": "Andrew",
-    "rooms": [
-      "Majestic Ballroom (All)"
-    ],
-    "setup": "Full ICA Setup",
-    "avNote": "Full A/V",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Large projection screen(s)",
-      "Projector(s)",
-      "Full audio mix",
-      "Full stage lighting"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev47",
-    "date": "2027-08-07",
-    "start": "11:30",
-    "end": "12:00",
-    "allDay": false,
-    "name": "Resolutions Committee Meeting",
-    "category": "Logistics",
-    "owner": "Board",
-    "rooms": [
-      "Keys Boardroom"
-    ],
-    "setup": "U-Shape",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev48",
-    "date": "2027-08-07",
-    "start": "11:30",
-    "end": "12:00",
-    "allDay": false,
-    "name": "Singing Pilgrims Rehearsal",
-    "category": "Logistics",
-    "owner": "Singing Pilgrims",
-    "rooms": [
-      "Palmetto 11"
-    ],
-    "setup": "Open / Special",
-    "avNote": "Speaker / Music",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Background music speaker"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev49",
-    "date": "2027-08-07",
-    "start": "12:00",
-    "end": "13:00",
-    "allDay": false,
-    "name": "Board Meeting: Elections & Lunch",
-    "category": "Logistics",
-    "owner": "Board",
-    "rooms": [
-      "Keys Boardroom"
-    ],
-    "setup": "Conference Table",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev50",
-    "date": "2027-08-07",
-    "start": "12:00",
-    "end": "13:00",
-    "allDay": false,
-    "name": "Staff Lunch",
-    "category": "Logistics",
-    "owner": "Diane",
-    "rooms": [],
-    "setup": "",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev51",
-    "date": "2027-08-07",
-    "start": "13:00",
-    "end": "17:00",
-    "allDay": false,
-    "name": "Undergraduate Educational Sessions",
-    "category": "Programming",
-    "owner": "Andrew",
-    "rooms": [
-      "Palmetto rooms (TBD)"
-    ],
-    "setup": "Classroom",
-    "avNote": "Projection per room",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Large projection screen(s)"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev52",
-    "date": "2027-08-07",
-    "start": "13:00",
-    "end": "18:30",
-    "allDay": false,
-    "name": "Open / Resort Time \u2014 Beach & Pool Day",
-    "category": "Social/Reception",
-    "owner": "Andrew",
-    "rooms": [
-      "Pool",
-      "Tidal Cove",
-      "Beach",
-      "Common Areas"
-    ],
-    "setup": "Open",
-    "avNote": "Food Trucks on Property",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev53",
-    "date": "2027-08-07",
-    "start": "17:00",
-    "end": "18:00",
-    "allDay": false,
-    "name": "Justin Baldwin Wine Tasting (Private)",
-    "category": "Donor/Society",
-    "owner": "Foundation",
-    "rooms": [
-      "Royal Ballroom (partial \u2014 ~100pp)"
-    ],
-    "setup": "Cocktail / Schoolroom",
-    "avNote": "2 Projections",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Large projection screen(s)"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev54",
-    "date": "2027-08-07",
-    "start": "18:30",
-    "end": "18:45",
-    "allDay": false,
-    "name": "Staff Pre-Banquet Meeting",
-    "category": "Logistics",
-    "owner": "Andrew",
-    "rooms": [
-      "Gold Office"
-    ],
-    "setup": "Conference",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev55",
-    "date": "2027-08-07",
-    "start": "18:45",
-    "end": "19:30",
-    "allDay": false,
-    "name": "Pre-Dinner Reception",
-    "category": "Social/Reception",
-    "owner": "Andrew",
-    "rooms": [
-      "Majestic South Foyer",
-      "Royal South Foyer",
-      "Porte Cochere"
-    ],
-    "setup": "High Tops",
-    "avNote": "Music Setup",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Background music speaker"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev56",
-    "date": "2027-08-07",
-    "start": "19:15",
-    "end": "19:30",
-    "allDay": false,
-    "name": "Group Photo",
-    "category": "Logistics",
-    "owner": "Andrew",
-    "rooms": [
-      "Porte Cochere",
-      "South Foyer Area"
-    ],
-    "setup": "Risers",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev57",
-    "date": "2027-08-07",
-    "start": "19:30",
-    "end": "22:00",
-    "allDay": false,
-    "name": "Closing Banquet",
-    "category": "Social/Reception",
-    "owner": "Andrew",
-    "rooms": [
-      "Majestic Ballroom (All)"
-    ],
-    "setup": "Rounds of 12",
-    "avNote": "Full A/V + Lighting",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Large projection screen(s)",
-      "Projector(s)",
-      "Full audio mix",
-      "Full stage lighting"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev58",
-    "date": "2027-08-07",
-    "start": "22:00",
-    "end": null,
-    "allDay": false,
-    "name": "Evening Celebrations",
-    "category": "Social/Reception",
-    "owner": "Andrew",
-    "rooms": [
-      "Common Areas",
-      "Foyers"
-    ],
-    "setup": "Open",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev59",
-    "date": "2027-08-07",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Michelle's Closet",
-    "category": "Programming",
-    "owner": "Andrew",
-    "rooms": [
-      "Palmetto 7"
-    ],
-    "setup": "Exhibit",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev60",
-    "date": "2027-08-07",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "History Library",
-    "category": "Programming",
-    "owner": "Andrew",
-    "rooms": [
-      "Palmetto 6"
-    ],
-    "setup": "Tables & TVs",
-    "avNote": "TVs",
-    "avCompany": "Pinnacle Live (in-house)",
-    "avItems": [
-      "Flat screen / TV (content loop)"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev61",
-    "date": "2027-08-07",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Housing Experience",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Palmetto 10"
-    ],
-    "setup": "Exhibit",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev62",
-    "date": "2027-08-07",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Registration Experience + Vendors",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Royal South Foyer",
-      "Majestic South Foyer"
-    ],
-    "setup": "Exhibit / Tables",
-    "avNote": "Music",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [
-      "Background music speaker"
-    ],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev63",
-    "date": "2027-08-07",
-    "start": null,
-    "end": null,
-    "allDay": true,
-    "name": "Staff Office",
-    "category": "Logistics",
-    "owner": "Staff",
-    "rooms": [
-      "Gold Office"
-    ],
-    "setup": "Conference / Storage",
-    "avNote": "N/A",
-    "avCompany": "TBD / Not yet assigned",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  },
-  {
-    "id": "ev64",
-    "date": "2027-08-08",
-    "start": "08:00",
-    "end": "11:00",
-    "allDay": false,
-    "name": "Load Out / Strike",
-    "category": "Logistics",
-    "owner": "Diane / Venue",
-    "rooms": [
-      "Majestic Ballroom (All)",
-      "Foyers"
-    ],
-    "setup": "Strike / Load-Out",
-    "avNote": "N/A",
-    "avCompany": "Pixel Point LLC",
-    "avItems": [],
-    "status": "confirmed",
-    "assignees": []
-  }
+    {
+        "id": "ev1",
+        "date": "2027-08-04",
+        "start": "08:00",
+        "end": "17:00",
+        "allDay": false,
+        "name": "Convention Set Up",
+        "category": "Logistics",
+        "owner": "Diane / Venue",
+        "rooms": [
+            "Majestic Ballroom (All)",
+            "Foyers"
+        ],
+        "setup": "Load-In",
+        "avNote": "N/A",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev2",
+        "date": "2027-08-04",
+        "start": "14:00",
+        "end": "15:30",
+        "allDay": false,
+        "name": "Hotel Pre-Con Walkthrough",
+        "category": "Logistics",
+        "owner": "Andrew / Diane",
+        "rooms": [],
+        "setup": "Walkthrough",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev3",
+        "date": "2027-08-04",
+        "start": "15:30",
+        "end": "17:00",
+        "allDay": false,
+        "name": "High Level ICA Review",
+        "category": "Logistics",
+        "owner": "Andrew",
+        "rooms": [
+            "Gold Office"
+        ],
+        "setup": "Staff only",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev4",
+        "date": "2027-08-04",
+        "start": "15:30",
+        "end": "17:00",
+        "allDay": false,
+        "name": "Staff Meal",
+        "category": "Logistics",
+        "owner": "Diane",
+        "rooms": [],
+        "setup": "",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev5",
+        "date": "2027-08-04",
+        "start": "17:00",
+        "end": "18:00",
+        "allDay": false,
+        "name": "Initial Staff Meeting & Walkthrough",
+        "category": "Logistics",
+        "owner": "Andrew",
+        "rooms": [
+            "Gold Office"
+        ],
+        "setup": "Conference",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev6",
+        "date": "2027-08-04",
+        "start": "18:00",
+        "end": "18:30",
+        "allDay": false,
+        "name": "Boards & Staff Welcome Reception",
+        "category": "Social/Reception",
+        "owner": "Andrew",
+        "rooms": [
+            "Keys Boardroom"
+        ],
+        "setup": "Reception / Cocktail",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev7",
+        "date": "2027-08-04",
+        "start": "18:30",
+        "end": "20:30",
+        "allDay": false,
+        "name": "Early Attendee Gathering",
+        "category": "Social/Reception",
+        "owner": "Andrew",
+        "rooms": [
+            "Majestic South Foyer",
+            "Royal South Foyer"
+        ],
+        "setup": "Reception / Casual",
+        "avNote": "Music",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [
+            "Background music speaker"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev8",
+        "date": "2027-08-05",
+        "start": "07:00",
+        "end": "07:30",
+        "allDay": false,
+        "name": "Staff Morning Meeting",
+        "category": "Logistics",
+        "owner": "Andrew",
+        "rooms": [
+            "Gold Office"
+        ],
+        "setup": "Conference",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev9",
+        "date": "2027-08-05",
+        "start": "09:00",
+        "end": "10:00",
+        "allDay": false,
+        "name": "Grand Council Meeting",
+        "category": "Logistics",
+        "owner": "Grand Council",
+        "rooms": [
+            "Keys Boardroom"
+        ],
+        "setup": "U-Shape",
+        "avNote": "Projection",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Large projection screen(s)"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev10",
+        "date": "2027-08-05",
+        "start": "10:00",
+        "end": "16:00",
+        "allDay": false,
+        "name": "Convention Registration Opens",
+        "category": "Logistics",
+        "owner": "Staff",
+        "rooms": [
+            "Royal South Foyer",
+            "Historic Display"
+        ],
+        "setup": "Exhibit / Tables",
+        "avNote": "Music",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Background music speaker"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev11",
+        "date": "2027-08-05",
+        "start": "10:00",
+        "end": "11:00",
+        "allDay": false,
+        "name": "Foundation & Campaign Meeting",
+        "category": "Logistics",
+        "owner": "Foundation",
+        "rooms": [
+            "Keys Boardroom"
+        ],
+        "setup": "Conference",
+        "avNote": "Projection",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Large projection screen(s)"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev12",
+        "date": "2027-08-05",
+        "start": "11:00",
+        "end": "12:00",
+        "allDay": false,
+        "name": "Committee Meetings (Ritual, DEI, Resolutions, Housing)",
+        "category": "Logistics",
+        "owner": "Board",
+        "rooms": [
+            "Palmetto 1\u20134 (one each)"
+        ],
+        "setup": "U-Shape",
+        "avNote": "Projection per room",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Large projection screen(s)"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev13",
+        "date": "2027-08-05",
+        "start": "11:30",
+        "end": "13:00",
+        "allDay": false,
+        "name": "Staff Lunch",
+        "category": "Logistics",
+        "owner": "Diane",
+        "rooms": [],
+        "setup": "",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev14",
+        "date": "2027-08-05",
+        "start": "12:00",
+        "end": "13:00",
+        "allDay": false,
+        "name": "Singing Pilgrims Rehearsal",
+        "category": "Logistics",
+        "owner": "Singing Pilgrims",
+        "rooms": [
+            "Palmetto 11"
+        ],
+        "setup": "Open / Special",
+        "avNote": "Speaker / Music",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Background music speaker"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev15",
+        "date": "2027-08-05",
+        "start": "13:00",
+        "end": "14:30",
+        "allDay": false,
+        "name": "Alumni Initiation Ceremony",
+        "category": "Ceremony",
+        "owner": "Andrew",
+        "rooms": [
+            "Royal Ballroom (All)"
+        ],
+        "setup": "Special / Empty",
+        "avNote": "Projection + Audio",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Large projection screen(s)",
+            "Full audio mix"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev16",
+        "date": "2027-08-05",
+        "start": "15:00",
+        "end": "16:30",
+        "allDay": false,
+        "name": "Pilgrim Degree",
+        "category": "Ceremony",
+        "owner": "Andrew",
+        "rooms": [
+            "Royal Ballroom (All)"
+        ],
+        "setup": "Special / Empty",
+        "avNote": "Projection + Audio",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Large projection screen(s)",
+            "Full audio mix"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev17",
+        "date": "2027-08-05",
+        "start": "16:30",
+        "end": "17:30",
+        "allDay": false,
+        "name": "Transition / Pool & Common Areas Open",
+        "category": "Social/Reception",
+        "owner": "Andrew",
+        "rooms": [
+            "Common Areas",
+            "Pool"
+        ],
+        "setup": "Open",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev18",
+        "date": "2027-08-05",
+        "start": "17:30",
+        "end": "18:00",
+        "allDay": false,
+        "name": "Raise the Fez Donor Meet & Greet",
+        "category": "Donor/Society",
+        "owner": "Foundation",
+        "rooms": [
+            "TBD"
+        ],
+        "setup": "Cocktail / Low Tops",
+        "avNote": "Speaker / Music",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Background music speaker"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev19",
+        "date": "2027-08-05",
+        "start": "17:30",
+        "end": "18:30",
+        "allDay": false,
+        "name": "Welcome ICA + Guest Reception",
+        "category": "Programming",
+        "owner": "Andrew",
+        "rooms": [
+            "Majestic Ballroom (All)",
+            "Jenkins Suite"
+        ],
+        "setup": "ICA + Reception",
+        "avNote": "Full A/V",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [
+            "Large projection screen(s)",
+            "Projector(s)",
+            "Full audio mix",
+            "Full stage lighting"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev20",
+        "date": "2027-08-05",
+        "start": "19:30",
+        "end": "21:00",
+        "allDay": false,
+        "name": "Welcome Reception + Brotherhood Circles",
+        "category": "Social/Reception",
+        "owner": "Andrew",
+        "rooms": [
+            "Majestic South Foyer",
+            "Royal South Foyer",
+            "Porte Cochere"
+        ],
+        "setup": "Reception (Indoor/Outdoor)",
+        "avNote": "Music + Live Music Setup",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [
+            "Background music speaker"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev21",
+        "date": null,
+        "start": null,
+        "end": null,
+        "allDay": true,
+        "name": "ICA / Business Meeting Room",
+        "category": "Logistics",
+        "owner": "Staff",
+        "rooms": [
+            "Majestic Ballroom (All)"
+        ],
+        "setup": "Full ICA Setup",
+        "avNote": "Full A/V, Projection, Audio",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [
+            "Large projection screen(s)",
+            "Projector(s)",
+            "Full audio mix",
+            "Full stage lighting"
+        ],
+        "assignees": [],
+        "ongoing": true
+    },
+    {
+        "id": "ev22",
+        "date": null,
+        "start": null,
+        "end": null,
+        "allDay": true,
+        "name": "Michelle's Closet",
+        "category": "Programming",
+        "owner": "Andrew",
+        "rooms": [
+            "Palmetto 7"
+        ],
+        "setup": "Exhibit",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": true
+    },
+    {
+        "id": "ev23",
+        "date": null,
+        "start": null,
+        "end": null,
+        "allDay": true,
+        "name": "Business Operations",
+        "category": "Logistics",
+        "owner": "Staff",
+        "rooms": [
+            "Palmetto 8"
+        ],
+        "setup": "Exhibit",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": true
+    },
+    {
+        "id": "ev24",
+        "date": null,
+        "start": null,
+        "end": null,
+        "allDay": true,
+        "name": "Housing Experience",
+        "category": "Logistics",
+        "owner": "Staff",
+        "rooms": [
+            "Palmetto 10"
+        ],
+        "setup": "Exhibit",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": true
+    },
+    {
+        "id": "ev25",
+        "date": null,
+        "start": null,
+        "end": null,
+        "allDay": true,
+        "name": "Registration Experience + Vendors",
+        "category": "Logistics",
+        "owner": "Staff",
+        "rooms": [
+            "Royal South Foyer",
+            "Majestic South Foyer"
+        ],
+        "setup": "Exhibit / Tables",
+        "avNote": "Music",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [
+            "Background music speaker"
+        ],
+        "assignees": [],
+        "ongoing": true
+    },
+    {
+        "id": "ev26",
+        "date": null,
+        "start": null,
+        "end": null,
+        "allDay": true,
+        "name": "Staff Office",
+        "category": "Logistics",
+        "owner": "Staff",
+        "rooms": [
+            "Gold Office"
+        ],
+        "setup": "Conference / Storage",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": true
+    },
+    {
+        "id": "ev27",
+        "date": "2027-08-06",
+        "start": "07:00",
+        "end": "07:30",
+        "allDay": false,
+        "name": "Staff Morning Meeting",
+        "category": "Logistics",
+        "owner": "Andrew",
+        "rooms": [
+            "Gold Office"
+        ],
+        "setup": "Conference",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev28",
+        "date": "2027-08-06",
+        "start": "09:00",
+        "end": "10:00",
+        "allDay": false,
+        "name": "Keynote Speaker",
+        "category": "Programming",
+        "owner": "Andrew",
+        "rooms": [
+            "Majestic Ballroom (All)"
+        ],
+        "setup": "Theater / Plenary",
+        "avNote": "Full A/V, Stage, Lighting",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [
+            "Large projection screen(s)",
+            "Projector(s)",
+            "Full audio mix",
+            "Full stage lighting"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev29",
+        "date": "2027-08-06",
+        "start": "10:00",
+        "end": "12:00",
+        "allDay": false,
+        "name": "ICA Session 2",
+        "category": "Programming",
+        "owner": "Andrew",
+        "rooms": [
+            "Majestic Ballroom (All)"
+        ],
+        "setup": "Full ICA Setup",
+        "avNote": "Full A/V",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [
+            "Large projection screen(s)",
+            "Projector(s)",
+            "Full audio mix",
+            "Full stage lighting"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev30",
+        "date": "2027-08-06",
+        "start": "10:00",
+        "end": "12:00",
+        "allDay": false,
+        "name": "Guest Event \u2014 Offsite Excursion",
+        "category": "Guest Event",
+        "owner": "Andrew / Diane",
+        "rooms": [
+            "Offsite"
+        ],
+        "setup": "N/A",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev31",
+        "date": "2027-08-06",
+        "start": "12:00",
+        "end": "13:00",
+        "allDay": false,
+        "name": "Staff Lunch",
+        "category": "Logistics",
+        "owner": "Diane",
+        "rooms": [],
+        "setup": "",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev32",
+        "date": "2027-08-06",
+        "start": "13:00",
+        "end": "17:00",
+        "allDay": false,
+        "name": "Undergraduate Educational Sessions",
+        "category": "Programming",
+        "owner": "Andrew",
+        "rooms": [
+            "Palmetto rooms (TBD)"
+        ],
+        "setup": "Classroom",
+        "avNote": "Projection per room",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Large projection screen(s)"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev33",
+        "date": "2027-08-06",
+        "start": "13:15",
+        "end": "14:15",
+        "allDay": false,
+        "name": "Alcove Society Reception",
+        "category": "Donor/Society",
+        "owner": "Foundation",
+        "rooms": [
+            "Corsair Restaurant (Private Space)"
+        ],
+        "setup": "Cocktail / Low Tops",
+        "avNote": "Music",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Background music speaker"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev34",
+        "date": "2027-08-06",
+        "start": "14:00",
+        "end": "15:00",
+        "allDay": false,
+        "name": "Singing Pilgrims Rehearsal",
+        "category": "Logistics",
+        "owner": "Singing Pilgrims",
+        "rooms": [
+            "Palmetto 11"
+        ],
+        "setup": "Open / Special",
+        "avNote": "Speaker / Music",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Background music speaker"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev35",
+        "date": "2027-08-06",
+        "start": "17:30",
+        "end": "18:30",
+        "allDay": false,
+        "name": "1899 Society Reception",
+        "category": "Donor/Society",
+        "owner": "Foundation",
+        "rooms": [
+            "Cascata Pool"
+        ],
+        "setup": "Cocktail / Outdoor",
+        "avNote": "Music + Outdoor Audio",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Full audio mix",
+            "Background music speaker",
+            "Outdoor/weatherproof speakers"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev36",
+        "date": "2027-08-06",
+        "start": "18:30",
+        "end": "21:00",
+        "allDay": false,
+        "name": "Foundation Reception + Auction",
+        "category": "Donor/Society",
+        "owner": "Foundation",
+        "rooms": [
+            "Royal Ballroom (All)",
+            "Royal East Foyer",
+            "Magnolia Courtyard"
+        ],
+        "setup": "Reception (Indoor/Outdoor)",
+        "avNote": "Full A/V + Auction Setup",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Large projection screen(s)",
+            "Projector(s)",
+            "Full audio mix",
+            "Full stage lighting",
+            "Podium/banner"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev37",
+        "date": "2027-08-06",
+        "start": "21:00",
+        "end": null,
+        "allDay": false,
+        "name": "Informal Socials / Brotherhood Circles",
+        "category": "Social/Reception",
+        "owner": "Andrew",
+        "rooms": [
+            "Common Areas",
+            "Foyers"
+        ],
+        "setup": "Open",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev40",
+        "date": null,
+        "start": null,
+        "end": null,
+        "allDay": true,
+        "name": "History Library",
+        "category": "Programming",
+        "owner": "Andrew",
+        "rooms": [
+            "Palmetto 6"
+        ],
+        "setup": "Tables & TVs",
+        "avNote": "TVs",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Flat screen / TV (content loop)"
+        ],
+        "assignees": [],
+        "ongoing": true
+    },
+    {
+        "id": "ev44",
+        "date": "2027-08-07",
+        "start": "07:00",
+        "end": "07:30",
+        "allDay": false,
+        "name": "Staff Morning Meeting",
+        "category": "Logistics",
+        "owner": "Andrew",
+        "rooms": [
+            "Gold Office"
+        ],
+        "setup": "Conference",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev45",
+        "date": "2027-08-07",
+        "start": "08:30",
+        "end": "09:15",
+        "allDay": false,
+        "name": "Bond Eternal Ceremony",
+        "category": "Ceremony",
+        "owner": "Andrew",
+        "rooms": [
+            "Majestic Ballroom (All)"
+        ],
+        "setup": "Special / Empty",
+        "avNote": "Projection + Audio",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [
+            "Large projection screen(s)",
+            "Full audio mix"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev46",
+        "date": "2027-08-07",
+        "start": "09:30",
+        "end": "11:30",
+        "allDay": false,
+        "name": "ICA Session 4",
+        "category": "Programming",
+        "owner": "Andrew",
+        "rooms": [
+            "Majestic Ballroom (All)"
+        ],
+        "setup": "Full ICA Setup",
+        "avNote": "Full A/V",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [
+            "Large projection screen(s)",
+            "Projector(s)",
+            "Full audio mix",
+            "Full stage lighting"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev47",
+        "date": "2027-08-07",
+        "start": "11:30",
+        "end": "12:00",
+        "allDay": false,
+        "name": "Resolutions Committee Meeting",
+        "category": "Logistics",
+        "owner": "Board",
+        "rooms": [
+            "Keys Boardroom"
+        ],
+        "setup": "U-Shape",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev48",
+        "date": "2027-08-07",
+        "start": "11:30",
+        "end": "12:00",
+        "allDay": false,
+        "name": "Singing Pilgrims Rehearsal",
+        "category": "Logistics",
+        "owner": "Singing Pilgrims",
+        "rooms": [
+            "Palmetto 11"
+        ],
+        "setup": "Open / Special",
+        "avNote": "Speaker / Music",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Background music speaker"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev49",
+        "date": "2027-08-07",
+        "start": "12:00",
+        "end": "13:00",
+        "allDay": false,
+        "name": "Board Meeting: Elections & Lunch",
+        "category": "Logistics",
+        "owner": "Board",
+        "rooms": [
+            "Keys Boardroom"
+        ],
+        "setup": "Conference Table",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev50",
+        "date": "2027-08-07",
+        "start": "12:00",
+        "end": "13:00",
+        "allDay": false,
+        "name": "Staff Lunch",
+        "category": "Logistics",
+        "owner": "Diane",
+        "rooms": [],
+        "setup": "",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev51",
+        "date": "2027-08-07",
+        "start": "13:00",
+        "end": "17:00",
+        "allDay": false,
+        "name": "Undergraduate Educational Sessions",
+        "category": "Programming",
+        "owner": "Andrew",
+        "rooms": [
+            "Palmetto rooms (TBD)"
+        ],
+        "setup": "Classroom",
+        "avNote": "Projection per room",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Large projection screen(s)"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev52",
+        "date": "2027-08-07",
+        "start": "13:00",
+        "end": "18:30",
+        "allDay": false,
+        "name": "Open / Resort Time \u2014 Beach & Pool Day",
+        "category": "Social/Reception",
+        "owner": "Andrew",
+        "rooms": [
+            "Pool",
+            "Tidal Cove",
+            "Beach",
+            "Common Areas"
+        ],
+        "setup": "Open",
+        "avNote": "Food Trucks on Property",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev53",
+        "date": "2027-08-07",
+        "start": "17:00",
+        "end": "18:00",
+        "allDay": false,
+        "name": "Justin Baldwin Wine Tasting (Private)",
+        "category": "Donor/Society",
+        "owner": "Foundation",
+        "rooms": [
+            "Royal Ballroom (partial \u2014 ~100pp)"
+        ],
+        "setup": "Cocktail / Schoolroom",
+        "avNote": "2 Projections",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [
+            "Large projection screen(s)"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev54",
+        "date": "2027-08-07",
+        "start": "18:30",
+        "end": "18:45",
+        "allDay": false,
+        "name": "Staff Pre-Banquet Meeting",
+        "category": "Logistics",
+        "owner": "Andrew",
+        "rooms": [
+            "Gold Office"
+        ],
+        "setup": "Conference",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev55",
+        "date": "2027-08-07",
+        "start": "18:45",
+        "end": "19:30",
+        "allDay": false,
+        "name": "Pre-Dinner Reception",
+        "category": "Social/Reception",
+        "owner": "Andrew",
+        "rooms": [
+            "Majestic South Foyer",
+            "Royal South Foyer",
+            "Porte Cochere"
+        ],
+        "setup": "High Tops",
+        "avNote": "Music Setup",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [
+            "Background music speaker"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev56",
+        "date": "2027-08-07",
+        "start": "19:15",
+        "end": "19:30",
+        "allDay": false,
+        "name": "Group Photo",
+        "category": "Logistics",
+        "owner": "Andrew",
+        "rooms": [
+            "Porte Cochere",
+            "South Foyer Area"
+        ],
+        "setup": "Risers",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev57",
+        "date": "2027-08-07",
+        "start": "19:30",
+        "end": "22:00",
+        "allDay": false,
+        "name": "Closing Banquet",
+        "category": "Social/Reception",
+        "owner": "Andrew",
+        "rooms": [
+            "Majestic Ballroom (All)"
+        ],
+        "setup": "Rounds of 12",
+        "avNote": "Full A/V + Lighting",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [
+            "Large projection screen(s)",
+            "Projector(s)",
+            "Full audio mix",
+            "Full stage lighting"
+        ],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev58",
+        "date": "2027-08-07",
+        "start": "22:00",
+        "end": null,
+        "allDay": false,
+        "name": "Evening Celebrations",
+        "category": "Social/Reception",
+        "owner": "Andrew",
+        "rooms": [
+            "Common Areas",
+            "Foyers"
+        ],
+        "setup": "Open",
+        "avNote": "N/A",
+        "avCompany": "TBD / Not yet assigned",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    },
+    {
+        "id": "ev64",
+        "date": "2027-08-08",
+        "start": "08:00",
+        "end": "11:00",
+        "allDay": false,
+        "name": "Load Out / Strike",
+        "category": "Logistics",
+        "owner": "Diane / Venue",
+        "rooms": [
+            "Majestic Ballroom (All)",
+            "Foyers"
+        ],
+        "setup": "Strike / Load-Out",
+        "avNote": "N/A",
+        "avCompany": "Pixel Point LLC",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false
+    }
 ];
 const SEED_PEOPLE = [
   {
@@ -2104,11 +1903,45 @@ function downloadICS(blocks, filename){
 }
 function safeName(s){ return String(s||"plan").replace(/[^a-z0-9]+/gi,"_").replace(/^_+|_+$/g,"").toLowerCase()||"plan"; }
 
+/* ---- "Add to calendar" with a choice of provider ---- */
+/* Apple Calendar (macOS/iOS) opens a downloaded .ics file directly.
+   Outlook desktop imports the same .ics via File > Open & Export > Import/Export.
+   Google Calendar doesn't support opening a local .ics via a link, so we
+   download the file AND open Google's Import page so the person can pick it
+   up from there in one extra click. */
+function CalendarExportMenu({getBlocks, filenameBase, label="Add to calendar", compact=false}){
+  const [open,setOpen]=useState(false);
+  const doDownload=()=>{ const blocks=getBlocks(); if(!blocks || blocks.length===0) return; downloadICS(blocks, `${filenameBase}.ics`); };
+  const choose=(provider)=>{
+    doDownload();
+    if(provider==="google") window.open("https://calendar.google.com/calendar/u/0/r/settings/export","_blank");
+    if(provider==="microsoft") window.open("https://outlook.live.com/calendar/0/options/calendar/import","_blank");
+    setOpen(false);
+  };
+  return <div className="relative inline-block">
+    <button onClick={()=>setOpen(!open)} className={compact?"text-xs font-semibold flex items-center gap-1":"flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-semibold"}
+      style={compact?{color:C.nile}:{background:C.chip,color:C.deep}}>
+      <CalendarDays size={compact?12:15}/>{label}<ChevronDown size={compact?11:13}/>
+    </button>
+    {open && <div className="absolute z-30 mt-1 rounded-md shadow-lg overflow-hidden" style={{background:"#fff",border:`1px solid ${C.line}`,minWidth:180,right:0}}>
+      <button onClick={()=>choose("google")} className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50">Google Calendar</button>
+      <button onClick={()=>choose("apple")} className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50">Apple Calendar</button>
+      <button onClick={()=>choose("microsoft")} className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50">Outlook / Microsoft</button>
+    </div>}
+  </div>;
+}
+
+const EDITOR_NAME = "Andrew";
+
 /* ============================== ROOT ==================================== */
-function Hub(){
+function Hub({session}){
   const [tab,setTab]=useState("schedule");
   const [loaded,setLoaded]=useState(false);
   const [mode,setMode]=useState("staff"); // staff | admin
+  const [showLogin,setShowLogin]=useState(false);
+  const admin = mode==="admin" && !!session;
+
+  useEffect(()=>{ if(mode==="admin" && !session) setMode("staff"); },[session,mode]);
 
   const [schedule,setSchedule]=useState(SEED_SCHEDULE);
   const [people,setPeople]=useState(SEED_PEOPLE);
@@ -2125,10 +1958,8 @@ function Hub(){
   const [sponsors,setSponsors]=useState(SEED_SPONSORS);
   const [audit,setAudit]=useState([]);
 
-  const [editor,setEditor]=useState("");
   const [status,setStatus]=useState("idle");
   const saveTimer=useRef(null);
-  const editorRef=useRef(""); editorRef.current=editor;
   const auditRef=useRef([]); auditRef.current=audit;
 
   useEffect(()=>{ const l=document.createElement("link"); l.rel="stylesheet";
@@ -2149,7 +1980,7 @@ function Hub(){
     if(saveTimer.current)clearTimeout(saveTimer.current);
     saveTimer.current=setTimeout(async()=>{ await sset(KEYS[part],val); setStatus("saved"); setTimeout(()=>setStatus("idle"),1200); },500);
   },[]);
-  const log=useCallback((summary)=>{ const entry={id:uid("au"),ts:Date.now(),editor:editorRef.current||"Team member",summary};
+  const log=useCallback((summary)=>{ const entry={id:uid("au"),ts:Date.now(),editor:EDITOR_NAME,summary};
     const next=[entry,...auditRef.current].slice(0,500); setAudit(next); persist("audit",next); },[persist]);
 
   const upd = {
@@ -2176,7 +2007,7 @@ function Hub(){
     if(ex)setExpenses(ex); if(inc)setIncome(inc); if(tr)setTracker(tr); if(bs)setBudgetSettings({...SEED_BUDGET_SETTINGS,...bs}); if(sp)setSponsors(sp); if(au)setAudit(au);
   },[]);
 
-  useEffect(()=>{ if(mode==="staff" && tab==="budget") setTab("schedule"); },[mode, tab]);
+  useEffect(()=>{ if(!admin && tab==="budget") setTab("schedule"); },[admin, tab]);
 
   if(!loaded) return <Splash/>;
 
@@ -2192,7 +2023,7 @@ function Hub(){
     {id:"faq",label:"FAQ",icon:HelpCircle},
   ];
   const STAFF_TABS = ADMIN_TABS.filter(t=>t.id!=="budget");
-  const TABS = mode==="admin" ? ADMIN_TABS : STAFF_TABS;
+  const TABS = admin ? ADMIN_TABS : STAFF_TABS;
 
   return (
     <div style={{background:C.paper,color:C.ink,fontFamily:"Inter, system-ui, sans-serif",minHeight:"100vh"}}>
@@ -2204,13 +2035,11 @@ function Hub(){
             <div className="text-[13px]" style={{color:"#bcd2cb"}}>66th National Convention · Aug 4–8, 2027 · JW Marriott Turnberry, Miami</div>
           </div>
           <div className="flex items-center gap-2 flex-wrap justify-end">
-            <div className="flex items-center gap-2 text-xs" style={{color:"#bcd2cb"}}><span>Editing as</span>
-              <input value={editor} onChange={e=>setEditor(e.target.value)} placeholder="your name" className="px-2 py-1 rounded-md text-white text-xs outline-none" style={{background:"#0a2f29",border:"1px solid #1b4a42",width:104}}/></div>
-            <SaveDot status={status}/>
-            <button onClick={reloadAll} title="Sync" className="px-2.5 py-1.5 rounded-md text-xs font-semibold" style={{background:"#0a2f29",color:"#cfe0da",border:"1px solid #1b4a42"}}><RefreshCw size={13}/></button>
+            {admin && <SaveDot status={status}/>}
+            {admin && <button onClick={reloadAll} title="Sync" className="px-2.5 py-1.5 rounded-md text-xs font-semibold" style={{background:"#0a2f29",color:"#cfe0da",border:"1px solid #1b4a42"}}><RefreshCw size={13}/></button>}
             <div className="flex items-center rounded-md overflow-hidden" style={{border:"1px solid #1b4a42"}}>
               <button onClick={()=>setMode("staff")} className="px-3 py-1.5 text-xs font-semibold" style={{background:mode==="staff"?C.gold:"#0a2f29",color:mode==="staff"?C.deep:"#cfe0da"}}>Staff view</button>
-              <button onClick={()=>setMode("admin")} className="px-3 py-1.5 text-xs font-semibold" style={{background:mode==="admin"?C.gold:"#0a2f29",color:mode==="admin"?C.deep:"#cfe0da"}}>Admin</button>
+              <button onClick={()=>session?setMode("admin"):setShowLogin(true)} className="px-3 py-1.5 text-xs font-semibold" style={{background:mode==="admin"?C.gold:"#0a2f29",color:mode==="admin"?C.deep:"#cfe0da"}}>Admin</button>
             </div>
           </div>
         </div>
@@ -2220,17 +2049,18 @@ function Hub(){
           return <button key={t.id} onClick={()=>setTab(t.id)} className="flex items-center gap-2 px-4 py-3 text-sm font-semibold whitespace-nowrap" style={{color:on?C.gold:"#cfe0da",borderBottom:`3px solid ${on?C.gold:"transparent"}`}}><A size={16}/>{t.label}</button>; })}
       </nav>
       <main className="max-w-[1200px] mx-auto px-5 py-7">
-        {tab==="schedule" && <Schedule schedule={schedule} setSchedule={upd.schedule} people={people} blocks={blocks} admin={mode==="admin"}/>}
-        {tab==="staffplan" && <StaffPlan people={people} blocks={blocks} setBlocks={upd.blocks} schedule={schedule} admin={mode==="admin"}/>}
-        {tab==="budget" && mode==="admin" && <BudgetSection expenses={expenses} setExpenses={upd.expenses} income={income} setIncome={upd.income} settings={budgetCtx} setSettings={upd.budgetSettings} sponsors={sponsors} setSponsors={upd.sponsors} audit={audit} tracker={tracker} setTracker={upd.tracker} editor={editor} headcount={headcount}/>}
-        {tab==="directory" && <Directory people={people} setPeople={upd.people} vendors={vendors} setVendors={upd.vendors} docs={docs} setDocs={upd.docs} admin={mode==="admin"}/>}
-        {tab==="map" && <HotelMap map={map} setMap={upd.map} admin={mode==="admin"}/>}
-        {tab==="faq" && <Faq faq={faq} setFaq={upd.faq} admin={mode==="admin"}/>}
+        {tab==="schedule" && <Schedule schedule={schedule} setSchedule={upd.schedule} people={people} blocks={blocks} admin={admin}/>}
+        {tab==="staffplan" && <StaffPlan people={people} blocks={blocks} setBlocks={upd.blocks} schedule={schedule} admin={admin}/>}
+        {tab==="budget" && admin && <BudgetSection expenses={expenses} setExpenses={upd.expenses} income={income} setIncome={upd.income} settings={budgetCtx} setSettings={upd.budgetSettings} sponsors={sponsors} setSponsors={upd.sponsors} audit={audit} tracker={tracker} setTracker={upd.tracker} editor={EDITOR_NAME} headcount={headcount}/>}
+        {tab==="directory" && <Directory people={people} setPeople={upd.people} vendors={vendors} setVendors={upd.vendors} docs={docs} setDocs={upd.docs} admin={admin}/>}
+        {tab==="map" && <HotelMap map={map} setMap={upd.map} admin={admin}/>}
+        {tab==="faq" && <Faq faq={faq} setFaq={upd.faq} admin={admin}/>}
       </main>
       <footer className="text-center text-xs py-6" style={{color:C.muted}}>
-        Delta Sigma Phi · 66th National Convention — Miami 2027 · Internal planning workspace · {mode==="admin"?"Admin mode — edits save for everyone":"Shared with the team — auto-saves for everyone"}
-        <div className="mt-2"><button onClick={signOut} className="underline" style={{color:C.muted}}>Sign out</button></div>
+        Delta Sigma Phi · 66th National Convention — Miami 2027 · Internal planning workspace · {admin?"Admin mode — edits save for everyone":"Staff view — no login required"}
+        {admin && <div className="mt-2"><button onClick={()=>{signOut();setMode("staff");}} className="underline" style={{color:C.muted}}>Sign out of Admin</button></div>}
       </footer>
+      {showLogin && <AdminLoginModal onClose={()=>setShowLogin(false)} onSuccess={()=>{setShowLogin(false); setMode("admin");}}/>}
     </div>
   );
 }
@@ -2283,16 +2113,23 @@ function Schedule({schedule,setSchedule,people,blocks,admin}){
   const [editing,setEditing]=useState(null);
   const [adding,setAdding]=useState(false);
 
-  const dates = useMemo(()=>Array.from(new Set(schedule.map(e=>e.date))).sort(),[schedule]);
+  const dates = useMemo(()=>Array.from(new Set(schedule.filter(e=>!e.ongoing).map(e=>e.date))).sort(),[schedule]);
   const allNames = useMemo(()=>{ const s=new Set(); schedule.forEach(e=>(e.assignees||[]).forEach(n=>s.add(n))); people.forEach(p=>s.add(p.name)); return Array.from(s).sort(); },[schedule,people]);
 
-  const filtered = useMemo(()=>{
+  const searchFiltered = useMemo(()=>{
     let list = [...schedule];
-    if(dayFilter!=="All days") list = list.filter(e=>e.date===dayFilter);
     if(filterMode==="person" && person) list = list.filter(e=>(e.assignees||[]).includes(person));
     if(q) list = list.filter(e=>(e.name+(e.rooms||[]).join(" ")+(e.assignees||[]).join(" ")+e.category).toLowerCase().includes(q.toLowerCase()));
+    return list;
+  },[schedule,filterMode,person,q]);
+
+  const ongoingEvents = useMemo(()=>searchFiltered.filter(e=>e.ongoing),[searchFiltered]);
+
+  const filtered = useMemo(()=>{
+    let list = searchFiltered.filter(e=>!e.ongoing);
+    if(dayFilter!=="All days") list = list.filter(e=>e.date===dayFilter);
     return list.sort((a,b)=> a.date===b.date ? timeToMin(a.start)-timeToMin(b.start) : a.date.localeCompare(b.date));
-  },[schedule,dayFilter,filterMode,person,q]);
+  },[searchFiltered,dayFilter]);
 
   const grouped = useMemo(()=>{ const g={}; filtered.forEach(e=>{(g[e.date]=g[e.date]||[]).push(e);}); return g; },[filtered]);
 
@@ -2319,7 +2156,12 @@ function Schedule({schedule,setSchedule,people,blocks,admin}){
       {filterMode==="person" && !person && <p className="text-xs mt-2" style={{color:C.muted}}>Pick a name above to see everything that person is responsible for.</p>}
     </Card>
 
-    {Object.keys(grouped).length===0 && <Card><p className="text-sm" style={{color:C.muted}}>No events match. {filterMode==="person" && person ? `${person} has nothing assigned in this range.` : ""}</p></Card>}
+    {Object.keys(grouped).length===0 && ongoingEvents.length===0 && <Card><p className="text-sm" style={{color:C.muted}}>No events match. {filterMode==="person" && person ? `${person} has nothing assigned in this range.` : ""}</p></Card>}
+
+    {ongoingEvents.length>0 && <div>
+      <h3 className="text-sm font-bold uppercase tracking-wide mb-2 flex items-center gap-2" style={{color:C.nile}}>Available all convention <span className="text-[10px] font-medium normal-case" style={{color:C.muted}}>— no need to add these per day</span></h3>
+      <div className="space-y-2">{ongoingEvents.map(ev=><EventRow key={ev.id} ev={ev} admin={admin} onEdit={()=>setEditing(ev)} onDelete={()=>del(ev)}/>)}</div>
+    </div>}
 
     {view==="list" && Object.entries(grouped).map(([date,evs])=>
       <div key={date}>
@@ -2342,10 +2184,9 @@ function EventRow({ev,admin,onEdit,onDelete}){
       <div className="flex-1 min-w-[240px]">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-semibold text-sm" style={{fontFamily:"Fraunces,serif"}}>{ev.name}</span>
-          <Pill text={ev.status} color={EVENT_STATUS_COLOR[ev.status]||C.muted}/>
         </div>
         <div className="flex items-center gap-3 text-xs mt-1 flex-wrap" style={{color:C.muted}}>
-          <span className="flex items-center gap-1"><CalendarClock size={12}/>{ev.allDay?"All day":fmtRange(ev.start,ev.end)}</span>
+          <span className="flex items-center gap-1"><CalendarClock size={12}/>{ev.ongoing?"Runs all convention":ev.allDay?"All day":fmtRange(ev.start,ev.end)}</span>
           {(ev.rooms||[]).map(r=><span key={r} className="flex items-center gap-1"><MapPin size={12}/>{r}</span>)}
         </div>
         {(ev.avCompany || (ev.avItems||[]).length>0) && <div className="text-xs mt-1.5 grid gap-0.5" style={{color:C.muted}}>
@@ -2364,7 +2205,7 @@ function EventRow({ev,admin,onEdit,onDelete}){
   </Card>;
 }
 function EventModal({ev,people,onClose,onSave}){
-  const [f,setF]=useState(ev || {date:"",start:"",end:"",allDay:false,name:"",category:"",owner:"",rooms:[],setup:"",avNote:"",avCompany:"TBD / Not yet assigned",avItems:[],status:"confirmed",assignees:[]});
+  const [f,setF]=useState(ev || {date:"",start:"",end:"",allDay:false,ongoing:false,name:"",category:"",owner:"",rooms:[],setup:"",avNote:"",avCompany:"TBD / Not yet assigned",avItems:[],assignees:[]});
   const [newAssignee,setNewAssignee]=useState("");
   const addAssignee=()=>{ if(newAssignee && !f.assignees.includes(newAssignee)){ setF({...f,assignees:[...f.assignees,newAssignee]}); setNewAssignee(""); } };
   const removeAssignee=(n)=> setF({...f,assignees:f.assignees.filter(x=>x!==n)});
@@ -2372,13 +2213,14 @@ function EventModal({ev,people,onClose,onSave}){
     <div style={{maxHeight:"90vh",overflowY:"auto"}} className="w-full">
     <Card style={{maxWidth:560,width:"100%",margin:"0 auto"}}>
       <div className="flex items-center justify-between mb-4"><h3 className="font-semibold" style={{fontFamily:"Fraunces,serif"}}>{ev?"Edit event":"Add event"}</h3><button onClick={onClose}><X size={18} style={{color:C.muted}}/></button></div>
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <Field label="Date"><input type="date" value={f.date} onChange={e=>setF({...f,date:e.target.value})} className="w-full px-3 py-2 rounded-md text-sm outline-none" style={{border:`1px solid ${C.line}`}}/></Field>
-        <Field label="Status"><Select value={f.status} onChange={v=>setF({...f,status:v})} options={["confirmed","tbd","pending"]} w={"100%"}/></Field>
+      {!f.ongoing && <div className="grid grid-cols-2 gap-3 mb-3">
+        <Field label="Date"><input type="date" value={f.date||""} onChange={e=>setF({...f,date:e.target.value})} className="w-full px-3 py-2 rounded-md text-sm outline-none" style={{border:`1px solid ${C.line}`}}/></Field>
+        <div/>
         <Field label="Start time"><input type="time" disabled={f.allDay} value={f.start||""} onChange={e=>setF({...f,start:e.target.value})} className="w-full px-3 py-2 rounded-md text-sm outline-none" style={{border:`1px solid ${C.line}`,opacity:f.allDay?0.5:1}}/></Field>
         <Field label="End time"><input type="time" disabled={f.allDay} value={f.end||""} onChange={e=>setF({...f,end:e.target.value})} className="w-full px-3 py-2 rounded-md text-sm outline-none" style={{border:`1px solid ${C.line}`,opacity:f.allDay?0.5:1}}/></Field>
-      </div>
-      <label className="flex items-center gap-2 text-sm mb-3"><input type="checkbox" checked={f.allDay} onChange={e=>setF({...f,allDay:e.target.checked})} style={{accentColor:C.deep}}/>All day</label>
+      </div>}
+      <label className="flex items-center gap-2 text-sm mb-2"><input type="checkbox" checked={f.ongoing} onChange={e=>setF({...f,ongoing:e.target.checked,allDay:e.target.checked?true:f.allDay,date:e.target.checked?"":f.date})} style={{accentColor:C.deep}}/>Runs the whole convention — not tied to one day (e.g. Housing Experience, Business Operations)</label>
+      {!f.ongoing && <label className="flex items-center gap-2 text-sm mb-3"><input type="checkbox" checked={f.allDay} onChange={e=>setF({...f,allDay:e.target.checked})} style={{accentColor:C.deep}}/>All day</label>}
       <Field label="Event name"><input value={f.name} onChange={e=>setF({...f,name:e.target.value})} className="w-full mb-3 px-3 py-2 rounded-md text-sm outline-none" style={{border:`1px solid ${C.line}`}}/></Field>
       <div className="grid grid-cols-2 gap-3 mb-3">
         <Field label="Category"><input value={f.category} onChange={e=>setF({...f,category:e.target.value})} placeholder="e.g. Ceremony" className="w-full px-3 py-2 rounded-md text-sm outline-none" style={{border:`1px solid ${C.line}`}}/></Field>
@@ -2418,7 +2260,6 @@ function ScheduleTimeline({date,evs,admin,onEdit}){
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-sm" style={{fontFamily:"Fraunces,serif"}}>{ev.name}</span>
-                <Pill text={ev.status} color={EVENT_STATUS_COLOR[ev.status]||C.muted}/>
                 {admin && <button onClick={()=>onEdit(ev)} className="text-[11px] font-semibold flex items-center gap-1" style={{color:C.nile}}><Pencil size={11}/>Edit</button>}
               </div>
               <div className="flex items-center gap-3 text-xs mt-0.5 flex-wrap" style={{color:C.muted}}>
@@ -2499,16 +2340,13 @@ function StaffPlan({people,blocks,setBlocks,schedule,admin}){
     };
     rd.readAsText(f); e.target.value="";
   };
-  const exportPerson=()=>{ if(myBlocks.length===0) return; downloadICS(myBlocks, `${safeName(person)}_convention_plan.ics`); };
-  const exportDay=(date,bs)=> downloadICS(bs, `${safeName(person)}_${date}.ics`);
-
   return <div className="space-y-5">
     <SectionTitle sub="Hour-by-hour: where each person needs to be, whether that's a specific event, a duty, or floating/available time.">Staff Plan</SectionTitle>
     <Card>
       <div className="flex flex-wrap items-center gap-3">
         <Select value={person} onChange={setPerson} options={people.map(p=>p.name)} w={220}/>
         {admin && <button onClick={()=>setAdding(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-md text-white text-sm font-semibold" style={{background:C.deep}}><Plus size={15}/>Add block</button>}
-        <button onClick={exportPerson} disabled={myBlocks.length===0} className="flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-semibold" style={{background:myBlocks.length?C.chip:"#f0efe9",color:myBlocks.length?C.deep:C.muted}}><CalendarDays size={15}/>Add full plan to calendar</button>
+        {myBlocks.length>0 && <CalendarExportMenu getBlocks={()=>myBlocks} filenameBase={`${safeName(person)}_convention_plan`} label="Add full plan to calendar"/>}
         {admin && <div className="ml-auto flex items-center gap-2">
           <button onClick={downloadTemplate} className="flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-semibold" style={{background:C.chip,color:C.deep}}><Download size={15}/>Template</button>
           <button onClick={()=>fileRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-semibold" style={{background:C.gold,color:C.deep}}><Upload size={15}/>Bulk upload CSV</button>
@@ -2523,7 +2361,7 @@ function StaffPlan({people,blocks,setBlocks,schedule,admin}){
       <div key={date}>
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-bold uppercase tracking-wide" style={{color:C.nile}}>{fmtDate(date)}</h3>
-          <button onClick={()=>exportDay(date,bs)} className="text-xs font-semibold flex items-center gap-1" style={{color:C.nile}}><CalendarDays size={12}/>Add day to calendar</button>
+          <CalendarExportMenu getBlocks={()=>bs} filenameBase={`${safeName(person)}_${date}`} label="Add day to calendar" compact/>
         </div>
         <div className="space-y-2">{bs.map(b=><BlockRow key={b.id} b={b} admin={admin} onEdit={()=>setEditing(b)} onDelete={()=>del(b)}/>)}</div>
       </div>
@@ -2543,7 +2381,7 @@ function BlockRow({b,admin,onEdit,onDelete}){
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <button onClick={()=>downloadICS([b], `${safeName(b.person)}_${safeName(b.label||"block")}.ics`)} title="Add to calendar (.ics)" className="text-xs font-semibold flex items-center gap-1" style={{color:C.nile}}><CalendarDays size={12}/>Calendar</button>
+        <CalendarExportMenu getBlocks={()=>[b]} filenameBase={`${safeName(b.person)}_${safeName(b.label||"block")}`} label="Calendar" compact/>
         {admin && <><button onClick={onEdit} className="text-xs font-semibold flex items-center gap-1" style={{color:C.nile}}><Pencil size={12}/>Edit</button><button onClick={onDelete} style={{color:C.muted}}><Trash2 size={14}/></button></>}
       </div>
     </div>
@@ -3104,22 +2942,25 @@ function Activity({audit,expenses,setExpenses,editor}){
 
 
 /* ============================== AUTH GATE ============================== */
+/* Staff view needs no login at all. Only switching into Admin prompts for
+   the team password (Andrew only), via a modal rather than a full-page gate. */
 function injectFonts(){ if(document.getElementById("dsp-fonts")) return;
   const l=document.createElement("link"); l.id="dsp-fonts"; l.rel="stylesheet";
   l.href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap";
   document.head.appendChild(l); }
-function Login(){
+function AdminLoginModal({onClose,onSuccess}){
   const [pw,setPw]=useState(""); const [err,setErr]=useState(""); const [busy,setBusy]=useState(false);
   const submit=async()=>{ if(!pw)return; setBusy(true); setErr("");
     const { error } = await signInWithPassword(pw);
-    if(error) setErr("That password didn't work. Try again, or check with Andrew.");
-    setBusy(false); };
-  return <div style={{background:C.deep,minHeight:"100vh",fontFamily:"Inter, system-ui, sans-serif"}} className="flex items-center justify-center px-4">
+    setBusy(false);
+    if(error){ setErr("That password didn't work. Try again."); return; }
+    onSuccess(); };
+  return <div className="fixed inset-0 flex items-center justify-center px-4 py-8" style={{background:"#00000066",zIndex:60}}>
     <div style={{background:C.card,borderRadius:16,maxWidth:380}} className="w-full p-7">
-      <div style={{color:C.gold,letterSpacing:".2em"}} className="text-[11px] font-semibold">DELTA SIGMA PHI · NEXT ERA IN ACTION</div>
-      <h1 style={{fontFamily:"Fraunces, serif",fontWeight:600}} className="text-2xl mt-1 mb-1">Convention Hub</h1>
-      <p className="text-sm mb-5" style={{color:C.muted}}>Enter the team password to continue.</p>
-      <input type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} placeholder="Team password" autoFocus className="w-full px-3 py-2 rounded-md outline-none text-sm" style={{border:`1px solid ${C.line}`}}/>
+      <div className="flex items-center justify-between mb-1"><div style={{color:C.gold,letterSpacing:".2em"}} className="text-[11px] font-semibold">ADMIN PORTAL</div><button onClick={onClose}><X size={18} style={{color:C.muted}}/></button></div>
+      <h1 style={{fontFamily:"Fraunces, serif",fontWeight:600}} className="text-2xl mt-1 mb-1">Enter admin password</h1>
+      <p className="text-sm mb-5" style={{color:C.muted}}>Staff view never needs this — this is just to make edits.</p>
+      <input type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()} placeholder="Admin password" autoFocus className="w-full px-3 py-2 rounded-md outline-none text-sm" style={{border:`1px solid ${C.line}`}}/>
       {err && <div className="text-xs mt-2" style={{color:C.neg}}>{err}</div>}
       <button onClick={submit} disabled={busy} className="w-full mt-4 py-2.5 rounded-md text-white font-semibold text-sm flex items-center justify-center gap-2" style={{background:C.deep}}>{busy && <Loader2 size={15} className="animate-spin"/>}{busy?"Signing in…":"Enter"}</button>
     </div></div>;
@@ -3132,7 +2973,6 @@ function Root(){
     return ()=>{ mounted=false; sub.subscription.unsubscribe(); };
   },[]);
   if(session===undefined) return <Splash/>;
-  if(!session) return <Login/>;
-  return <Hub/>;
+  return <Hub session={session}/>;
 }
 export default Root;
