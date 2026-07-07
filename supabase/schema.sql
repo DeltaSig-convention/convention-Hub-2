@@ -18,6 +18,15 @@ create policy "authenticated full access"
   using (true)
   with check (true);
 
+-- Staff view has no login now — anyone with the link can READ the shared
+-- data, but only the signed-in Admin (policy above) can write/change it.
+drop policy if exists "public read" on public.kv;
+create policy "public read"
+  on public.kv
+  for select
+  to anon
+  using (true);
+
 -- 2) storage bucket for the hotel map image (and any future uploaded images)
 insert into storage.buckets (id, name, public)
 values ('hub-media', 'hub-media', true)
