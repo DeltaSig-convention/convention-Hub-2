@@ -2577,7 +2577,7 @@ function FaqModal({onClose,onSave}){
 /* ============================== BUDGET (full Budget Hub, rolled in) ============================== */
 function BudgetSection({expenses,setExpenses,income,setIncome,settings,setSettings,sponsors,setSponsors,audit,tracker,setTracker,editor,headcount}){
   const [sub,setSub]=useState("overview");
-  const SUBS=[{id:"overview",label:"Overview"},{id:"budget",label:"Budget"},{id:"tracker",label:"Expense Tracker"},{id:"income",label:"Income"},{id:"foundation",label:"Foundation"},{id:"activity",label:"Activity"}];
+  const SUBS=[{id:"overview",label:"Overview"},{id:"budget",label:"Budget"},{id:"tracker",label:"Expense Tracker"},{id:"income",label:"Income"},{id:"foundation",label:"Foundation"},{id:"housing",label:"Housing"},{id:"activity",label:"Activity"}];
   return <div className="space-y-5">
     <div className="flex items-center rounded-md overflow-hidden w-fit" style={{border:`1px solid ${C.line}`}}>
       {SUBS.map(s=><button key={s.id} onClick={()=>setSub(s.id)} className="px-4 py-2 text-sm font-semibold" style={{background:sub===s.id?C.deep:"#fff",color:sub===s.id?"#fff":C.ink}}>{s.label}</button>)}
@@ -2587,6 +2587,7 @@ function BudgetSection({expenses,setExpenses,income,setIncome,settings,setSettin
     {sub==="tracker" && <Tracker tracker={tracker} setTracker={setTracker} expenses={expenses}/>}
     {sub==="income" && <Income income={income} setIncome={setIncome} sponsors={sponsors} setSponsors={setSponsors} headcount={headcount}/>}
     {sub==="foundation" && <Foundation expenses={expenses} income={income} settings={settings} tracker={tracker}/>}
+    {sub==="housing" && <Housing expenses={expenses} income={income} settings={settings} tracker={tracker}/>}
     {sub==="activity" && <Activity audit={audit} expenses={expenses} setExpenses={setExpenses} editor={editor}/>}
   </div>;
 }
@@ -2902,6 +2903,71 @@ function Income({income,setIncome,sponsors,setSponsors,headcount}){
 }
 function HcChip({label,v,a}){ return <div className="text-center"><div className="text-[10px] uppercase tracking-wide" style={{color:"#9fc3b8"}}>{label}</div><div className="font-semibold text-white">{v}{a!==undefined&&<span className="text-[11px]" style={{color:C.gold}}> / {a}</span>}</div></div>; }
 function Bar2({title,right,action}){ return <div className="flex items-center justify-between px-4 py-3 flex-wrap gap-2" style={{background:C.deep,borderRadius:"14px 14px 0 0"}}><h3 className="text-white font-semibold text-sm" style={{fontFamily:"Fraunces,serif"}}>{title}</h3><div className="flex items-center gap-4"><span style={{color:C.gold}} className="font-semibold text-sm">{right}</span>{action}</div></div>; }
+
+function Housing({expenses,income,settings,tracker}){
+  // actuals roll up from Expense Tracker entries tagged to each line (same as Foundation)
+  const actualByLine=useMemo(()=>{ const m={}; (tracker||[]).forEach(t=>{ if(t.budgetLineId){ m[t.budgetLineId]=(m[t.budgetLineId]||0)+(t.cost||0); } }); return m; },[tracker]);
+  const la=(r)=>actualByLine[r.id]||0;
+
+  // ---- (1) LODGING ROLLUP: every room/lodging line, whoever pays --------------------
+  // Edit this list if you rename a lodging line in the Budget tab.
+  const LODGING_ITEMS=["Staff Lodging","Volunteer Room Blocks","Hotel","Housing Experience"];
+  const lodgeLines=expenses.filter(r=>LODGING_ITEMS.includes(r.item));
+  const lodgeTotal=lodgeLines.reduce((a,r)=>a+effEstimated(r,settings),0);
+  const lodgePaid=lodgeLines.reduce((a,r)=>a+la(r),0);
+  const ROOM_NIGHTS=727; // contractual commitment (JW Marriott Turnberry)
+
+  // ---- (2) HOUSING-ENTITY RECONCILIATION: mirror of Foundation -----------------------
+  const hLines=expenses.filter(r=>r.entity==="Housing");
+  const obligation=hLines.reduce((a,r)=>a+effEstimated(r,settings),0);
+  const paid=hLines.reduce((a,r)=>a+la(r),0);
+  const reimb=income.other.filter(r=>/housing/i.test(r.label)).reduce((a,r)=>a+(r.budgeted||0),0);
+  const reimbActual=income.other.filter(r=>/housing/i.test(r.label)).reduce((a,r)=>a+(r.actual||0),0);
+  const variance=reimb-obligation;
+
+  return <div className="space-y-5">
+
+    {/* ===== Room Block & Lodging rollup ===== */}
+    <SectionTitle sub="Every room and lodging line across the budget — staff, volunteers, and the undergraduate hotel subsidy — in one place, whoever pays. Contractual commitment: 727 room-nights; attrition applies if pickup runs short.">Room Block &amp; Lodging Overview</SectionTitle>
+    <div className="grid gap-3" style={{gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))"}}>
+      <Kpi label="Total lodging spend" value={usd(lodgeTotal)} sub="All room/lodging lines" tone={C.deep} accent/>
+      <Kpi label="Logged to date" value={usd(lodgePaid)} sub={pct(lodgeTotal?lodgePaid/lodgeTotal:0)+" of budget"} tone={C.nile}/>
+      <Kpi label="Room-night commitment" value={String(ROOM_NIGHTS)} sub="Attrition risk if pickup is short" tone={C.gold}/>
+    </div>
+    <Card pad={false}>
+      <div className="px-4 py-3" style={{background:C.deep,borderRadius:"14px 14px 0 0"}}><h3 className="text-white font-semibold text-sm" style={{fontFamily:"Fraunces,serif"}}>Room block &amp; lodging lines</h3></div>
+      <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr style={{color:C.muted}} className="text-[11px] uppercase">{["Category","Line item","Pays","Estimate","Actual"].map((h,i)=><th key={i} className="text-left font-semibold px-3 py-2" style={{borderBottom:`1px solid ${C.line}`}}>{h}</th>)}</tr></thead>
+        <tbody>{lodgeLines.map(r=>{ const eff=effEstimated(r,settings); const a=la(r);
+          return <tr key={r.id} style={{borderBottom:`1px solid ${C.line}`}}><td className="px-3 py-2" style={{color:C.muted}}>{r.category.slice(0,28)}</td><td className="px-3 py-2 font-medium">{r.item}</td><td className="px-3 py-2">{r.entity}</td><td className="px-3 py-2">{usd(eff)}</td><td className="px-3 py-2">{a>0?usd(a):"—"}</td></tr>; })}
+          {lodgeLines.length===0 && <tr><td colSpan={5} className="px-4 py-8 text-center" style={{color:C.muted}}>No lodging lines found. Name a line “Staff Lodging”, “Volunteer Room Blocks”, “Hotel”, or “Housing Experience”, or edit LODGING_ITEMS above.</td></tr>}
+          <tr style={{background:C.paper}}><td className="px-3 py-2 font-bold" colSpan={3}>Total</td><td className="px-3 py-2 font-bold">{usd(lodgeTotal)}</td><td className="px-3 py-2 font-bold">{lodgePaid>0?usd(lodgePaid):"—"}</td></tr>
+        </tbody></table></div>
+    </Card>
+
+    {/* ===== Housing Corp reimbursement reconciliation (mirrors Foundation) ===== */}
+    <SectionTitle sub="Everything tagged “Housing” as the paying entity (Housing Corp), netted against the Housing reimbursement budgeted in Income. Paid amounts roll up from Expense Tracker entries tagged to each line.">Housing Corp Reimbursement Reconciliation</SectionTitle>
+    <div className="grid gap-3" style={{gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))"}}>
+      <Kpi label="Housing obligation" value={usd(obligation)} sub="Housing-tagged expense" tone={C.gold}/>
+      <Kpi label="Reimbursement budgeted" value={usd(reimb)} sub={usd(reimbActual)+" received"} tone={C.nile}/>
+      <Kpi label="Coverage variance" value={usd(variance)} tone={variance>=0?C.pos:C.neg} accent/>
+      <Kpi label="Actually paid out" value={usd(paid)} sub={pct(obligation?paid/obligation:0)+" of obligation"} tone={C.deep}/>
+    </div>
+    <div className="flex items-center gap-2 text-sm px-4 py-3 rounded-lg" style={{background:variance>=0?C.goldSoft:"#fdf3ef",color:variance>=0?C.warn:C.neg}}>
+      {variance>=0 ? <><ShieldCheck size={16}/>Reimbursement budget covers the Housing obligation with {usd(variance)} of headroom.</> : <><AlertTriangle size={16}/>The Fraternity is fronting {usd(-variance)} more than the Housing reimbursement covers. Confirm the gap with Housing Corp.</>}
+    </div>
+    <Card pad={false}>
+      <div className="px-4 py-3" style={{background:C.deep,borderRadius:"14px 14px 0 0"}}><h3 className="text-white font-semibold text-sm" style={{fontFamily:"Fraunces,serif"}}>Housing-paid line items</h3></div>
+      <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr style={{color:C.muted}} className="text-[11px] uppercase">{["Category","Line item","Estimate","Actual","Status"].map((h,i)=><th key={i} className="text-left font-semibold px-3 py-2" style={{borderBottom:`1px solid ${C.line}`}}>{h}</th>)}</tr></thead>
+        <tbody>{hLines.map(r=>{ const eff=effEstimated(r,settings); const a=la(r); const st=a>=eff&&eff>0?"Settled":(a>0?"Partial":"Outstanding");
+          return <tr key={r.id} style={{borderBottom:`1px solid ${C.line}`}}><td className="px-3 py-2" style={{color:C.muted}}>{r.category.slice(0,28)}</td><td className="px-3 py-2 font-medium">{r.item}</td><td className="px-3 py-2">{usd(eff)}</td><td className="px-3 py-2">{a>0?usd(a):"—"}</td><td className="px-3 py-2"><Pill text={st} color={st==="Settled"?C.pos:(st==="Partial"?C.warn:C.muted)}/></td></tr>; })}
+          {hLines.length===0 && <tr><td colSpan={5} className="px-4 py-8 text-center" style={{color:C.muted}}>No lines are tagged to Housing yet. Set a line's “Pays” to Housing in the Budget tab.</td></tr>}
+          <tr style={{background:C.paper}}><td className="px-3 py-2 font-bold" colSpan={2}>Total</td><td className="px-3 py-2 font-bold">{usd(obligation)}</td><td className="px-3 py-2 font-bold">{paid>0?usd(paid):"—"}</td><td className="px-3 py-2"></td></tr>
+        </tbody></table></div>
+    </Card>
+
+  </div>;
+}
+
 
 function Foundation({expenses,income,settings,tracker}){
   const fLines=expenses.filter(r=>r.entity==="Foundation");
