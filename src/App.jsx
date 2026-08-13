@@ -2577,7 +2577,7 @@ function FaqModal({onClose,onSave}){
 /* ============================== BUDGET (full Budget Hub, rolled in) ============================== */
 function BudgetSection({expenses,setExpenses,income,setIncome,settings,setSettings,sponsors,setSponsors,audit,tracker,setTracker,editor,headcount}){
   const [sub,setSub]=useState("overview");
-  const SUBS=[{id:"overview",label:"Overview"},{id:"budget",label:"Budget"},{id:"tracker",label:"Expense Tracker"},{id:"income",label:"Income"},{id:"foundation",label:"Foundation"},{id:"housing",label:"Housing"},{id:"activity",label:"Activity"}];
+  const SUBS=[{id:"overview",label:"Overview"},{id:"budget",label:"Budget"},{id:"tracker",label:"Expense Tracker"},{id:"income",label:"Income"},{id:"foundation",label:"Foundation"},{id:"housing",label:"Housing"},{id:"cashflow",label:"Cash Flow"},{id:"activity",label:"Activity"}];
   return <div className="space-y-5">
     <div className="flex items-center rounded-md overflow-hidden w-fit" style={{border:`1px solid ${C.line}`}}>
       {SUBS.map(s=><button key={s.id} onClick={()=>setSub(s.id)} className="px-4 py-2 text-sm font-semibold" style={{background:sub===s.id?C.deep:"#fff",color:sub===s.id?"#fff":C.ink}}>{s.label}</button>)}
@@ -2588,6 +2588,7 @@ function BudgetSection({expenses,setExpenses,income,setIncome,settings,setSettin
     {sub==="income" && <Income income={income} setIncome={setIncome} sponsors={sponsors} setSponsors={setSponsors} headcount={headcount}/>}
     {sub==="foundation" && <Foundation expenses={expenses} income={income} settings={settings} tracker={tracker}/>}
     {sub==="housing" && <Housing expenses={expenses} income={income} settings={settings} tracker={tracker}/>}
+    {sub==="cashflow" && <CashFlow expenses={expenses} income={income} sponsors={sponsors} settings={settings} tracker={tracker}/>}
     {sub==="activity" && <Activity audit={audit} expenses={expenses} setExpenses={setExpenses} editor={editor}/>}
   </div>;
 }
@@ -2827,9 +2828,9 @@ function Income({income,setIncome,sponsors,setSponsors,headcount}){
       <Bar2 title="Registration pricing — sets your headcount" right={usd(regTotal)} action={<button onClick={()=>set("registration",[...income.registration,{id:uid("r"),group:"Alumni",tier:"New tier",qty:0,price:0,actualQty:0,actualTotal:0,window:""}])} className="text-xs flex items-center gap-1 font-semibold" style={{color:C.gold}}><Plus size={13}/>Add tier</button>}/>
       {groups.map(g=> regBy(g).length>0 && <div key={g}>
         <div className="px-4 pt-3 pb-1 text-xs font-bold uppercase tracking-wide" style={{color:C.nile}}>{g} · {regBy(g).reduce((a,r)=>a+(r.qty||0),0)} expected</div>
-        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr style={{color:C.muted}} className="text-[11px] uppercase">{["Tier","Window","Proj. qty","Price","Projected","Actual qty","Actual $",""].map((h,i)=><th key={i} className="text-left font-semibold px-3 py-1.5" style={{borderBottom:`1px solid ${C.line}`}}>{h}</th>)}</tr></thead>
+        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr style={{color:C.muted}} className="text-[11px] uppercase">{["Group","Tier","Window","Proj. qty","Price","Projected","Actual qty","Actual $",""].map((h,i)=><th key={i} className="text-left font-semibold px-3 py-1.5" style={{borderBottom:`1px solid ${C.line}`}}>{h}</th>)}</tr></thead>
           <tbody>{regBy(g).map(r=><tr key={r.id} style={{borderBottom:`1px solid ${C.line}`}}>
-            <td className="px-3 py-2"><TxtCell value={r.tier} onChange={v=>patch("registration",r.id,"tier",v)} w={170}/></td>
+            <td className="px-3 py-2"><select value={r.group||""} onChange={e=>patch("registration",r.id,"group",e.target.value)} className="text-sm px-2 py-1" style={{border:`1px solid ${C.line}`,borderRadius:6}}>{groups.map(g=><option key={g} value={g}>{g}</option>)}</select></td><td className="px-3 py-2"><TxtCell value={r.tier} onChange={v=>patch("registration",r.id,"tier",v)} w={170}/></td>
             <td className="px-3 py-2"><TxtCell value={r.window} onChange={v=>patch("registration",r.id,"window",v)} w={150}/></td>
             <td className="px-3 py-2"><NumCell value={r.qty} onChange={v=>patch("registration",r.id,"qty",v)} w={62}/></td>
             <td className="px-3 py-2"><NumCell value={r.price} onChange={v=>patch("registration",r.id,"price",v)} prefix="$" w={82}/></td>
@@ -2904,18 +2905,95 @@ function Income({income,setIncome,sponsors,setSponsors,headcount}){
 function HcChip({label,v,a}){ return <div className="text-center"><div className="text-[10px] uppercase tracking-wide" style={{color:"#9fc3b8"}}>{label}</div><div className="font-semibold text-white">{v}{a!==undefined&&<span className="text-[11px]" style={{color:C.gold}}> / {a}</span>}</div></div>; }
 function Bar2({title,right,action}){ return <div className="flex items-center justify-between px-4 py-3 flex-wrap gap-2" style={{background:C.deep,borderRadius:"14px 14px 0 0"}}><h3 className="text-white font-semibold text-sm" style={{fontFamily:"Fraunces,serif"}}>{title}</h3><div className="flex items-center gap-4"><span style={{color:C.gold}} className="font-semibold text-sm">{right}</span>{action}</div></div>; }
 
+function CashFlow({expenses,income,settings,tracker,sponsors}){
+  const MONTHS=["2026-12","2027-01","2027-02","2027-03","2027-04","2027-05","2027-06","2027-07","2027-08","2027-09"];
+  const MLABEL={"2026-12":"Dec '26","2027-01":"Jan '27","2027-02":"Feb '27","2027-03":"Mar '27","2027-04":"Apr '27","2027-05":"May '27","2027-06":"Jun '27","2027-07":"Jul '27","2027-08":"Aug '27","2027-09":"Sep '27"};
+  const EVENT="2027-08";
+  const actualByLine=useMemo(()=>{const m={};(tracker||[]).forEach(t=>{if(t.budgetLineId){m[t.budgetLineId]=(m[t.budgetLineId]||0)+(t.cost||0);}});return m;},[tracker]);
+  const b={}; MONTHS.forEach(m=>b[m]={in:0,out:0,inAct:0,outAct:0});
+
+  // ---- OUTFLOWS ----
+  // Hotel master account (F&B + lodging) paid on the JW deposit schedule, balance at settlement
+  const isHotel=(r)=> r.category==="Food & Beverage (F&B)" || /lodging/i.test(r.item||"");
+  const DEPOSITS=[["2026-12",5000],["2027-02",50000],["2027-04",50000],["2027-06",50000]];
+  let hotelTotal=0, hotelAct=0;
+  expenses.forEach(r=>{ if(isHotel(r)){ hotelTotal+=effEstimated(r,settings); hotelAct+=(actualByLine[r.id]||0);} });
+  let dep=0; DEPOSITS.forEach(([m,amt])=>{ const a=Math.min(amt,Math.max(0,hotelTotal-dep)); b[m].out+=a; dep+=a; });
+  b[EVENT].out+=Math.max(0,hotelTotal-dep);
+  b[EVENT].outAct+=hotelAct;
+  // Everything else by category rule (default = event month)
+  const CAT_MONTH={"Marketing, Media & Promotions":"2027-04","Convention Technology & Digital Infrastructure":"2027-05","Attendee Experience & Gift Materials":"2027-07","Governance & Board Meetings":"2027-06","Shipping, Supplies & Miscellaneous Logistics":"2027-07"};
+  expenses.forEach(r=>{ if(isHotel(r))return; const m=r.cashMonth||CAT_MONTH[r.category]||EVENT; if(!b[m])return; b[m].out+=effEstimated(r,settings); b[m].outAct+=(actualByLine[r.id]||0); });
+
+  // ---- INFLOWS ----
+  // Registration spread evenly across the Dec–Jun registration window
+  const REGM=["2026-12","2027-01","2027-02","2027-03","2027-04","2027-05","2027-06"];
+  const regTotal=(income.registration||[]).reduce((a,r)=>a+(r.qty||0)*(r.price||0),0);
+  const regAct=(income.registration||[]).reduce((a,r)=>a+(r.actualTotal||0),0);
+  REGM.forEach(m=>{ b[m].in+=regTotal/REGM.length; b[m].inAct+=regAct/REGM.length; });
+  // Add-ons + items collected at the event (net of their cost)
+  const addNet=(income.addons||[]).reduce((a,r)=>a+(r.attendees||0)*((r.price||0)-(r.cost||0)),0);
+  const itemNet=(income.items||[]).reduce((a,r)=>a+(r.qty||0)*((r.price||0)-(r.cost||0)),0);
+  const addAct=(income.addons||[]).reduce((a,r)=>a+(r.actualRevenue||0),0)+(income.items||[]).reduce((a,r)=>a+(r.actualRevenue||0),0);
+  b[EVENT].in+=addNet+itemNet; b[EVENT].inAct+=addAct;
+  // Sponsors: committed pipeline lands mid-cycle; paid = actual
+  const spon=sponsors||[];
+  const sponProj=spon.filter(s=>["Committed","Invoiced","Paid"].includes(s.stage)).reduce((a,s)=>a+(s.amount||0),0);
+  const sponPaid=spon.filter(s=>s.stage==="Paid").reduce((a,s)=>a+(s.amount||0),0);
+  b["2027-04"].in+=sponProj; b["2027-04"].inAct+=sponPaid;
+  // Other funding by label: grants pre-event, reimbursements post-event, HQ funding just before
+  (income.other||[]).forEach(r=>{ let m="2027-07"; if(/grant/i.test(r.label))m="2027-03"; else if(/reimburse/i.test(r.label))m="2027-09"; b[m].in+=(r.budgeted||0); b[m].inAct+=(r.actual||0); });
+
+  // ---- ROLLUP ----
+  let bal=0, balA=0;
+  const rows=MONTHS.map(m=>{ const x=b[m]; const net=x.in-x.out; bal+=net; const netA=x.inAct-x.outAct; balA+=netA; return {m,label:MLABEL[m],...x,net,bal,netA,balA}; });
+  const low=rows.reduce((lo,r)=>r.bal<lo.bal?r:lo,rows[0]);
+  const totIn=rows.reduce((a,r)=>a+r.in,0), totOut=rows.reduce((a,r)=>a+r.out,0);
+  const totInA=rows.reduce((a,r)=>a+r.inAct,0), totOutA=rows.reduce((a,r)=>a+r.outAct,0);
+  const end=rows[rows.length-1].bal;
+
+  return <div className="space-y-5">
+    <SectionTitle sub="Projected cash in vs. out by month with a running balance. Timing is automated — hotel spend on the JW deposit schedule (5K signing · 50K Feb/Apr/Jun · balance at settlement), registration across its window, everything else by category. Actuals auto-pull from the Expense Tracker and income actuals. Starting balance assumed $0.">Cash Flow Projection</SectionTitle>
+    <div className="grid gap-3" style={{gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))"}}>
+      <Kpi label="Projected cash in" value={usd(totIn)} sub={usd(totInA)+" actual to date"} tone={C.nile}/>
+      <Kpi label="Projected cash out" value={usd(totOut)} sub={usd(totOutA)+" actual to date"} tone={C.gold}/>
+      <Kpi label="Ending balance" value={usd(end)} tone={end>=0?C.pos:C.neg} accent/>
+      <Kpi label="Lowest point" value={usd(low.bal)} sub={low.label} tone={low.bal>=0?C.deep:C.neg}/>
+    </div>
+    <Card>
+      <div style={{height:240}}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={rows.map(r=>({name:r.label,balance:Math.round(r.bal)}))} margin={{top:8,right:8,left:8,bottom:0}}>
+            <CartesianGrid strokeDasharray="3 3" stroke={C.line}/>
+            <XAxis dataKey="name" tick={{fontSize:11}}/>
+            <YAxis tick={{fontSize:11}} tickFormatter={v=>"$"+Math.round(v/1000)+"k"}/>
+            <Tooltip formatter={v=>usd(v)}/>
+            <Bar dataKey="balance">{rows.map((r,i)=><Cell key={i} fill={r.bal>=0?C.nile:C.neg}/>)}</Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
+    <Card pad={false}>
+      <div className="px-4 py-3" style={{background:C.deep,borderRadius:"14px 14px 0 0"}}><h3 className="text-white font-semibold text-sm" style={{fontFamily:"Fraunces,serif"}}>Monthly cash flow</h3></div>
+      <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr style={{color:C.muted}} className="text-[11px] uppercase">{["Month","Cash in","Cash out","Net","Running balance","Actual in","Actual out"].map((h,i)=><th key={i} className="text-left font-semibold px-3 py-2" style={{borderBottom:`1px solid ${C.line}`}}>{h}</th>)}</tr></thead>
+        <tbody>{rows.map(r=><tr key={r.m} style={{borderBottom:`1px solid ${C.line}`,background:r.m===low.m?C.goldSoft:"transparent"}}>
+          <td className="px-3 py-2 font-medium">{r.label}</td>
+          <td className="px-3 py-2">{r.in?usd(r.in):"—"}</td>
+          <td className="px-3 py-2">{r.out?usd(r.out):"—"}</td>
+          <td className="px-3 py-2" style={{color:r.net>=0?C.pos:C.neg}}>{usd(r.net)}</td>
+          <td className="px-3 py-2 font-semibold" style={{color:r.bal>=0?C.ink:C.neg}}>{usd(r.bal)}</td>
+          <td className="px-3 py-2" style={{color:C.muted}}>{r.inAct?usd(r.inAct):"—"}</td>
+          <td className="px-3 py-2" style={{color:C.muted}}>{r.outAct?usd(r.outAct):"—"}</td>
+        </tr>)}</tbody></table></div>
+    </Card>
+  </div>;
+}
+
+
 function Housing({expenses,income,settings,tracker}){
   // actuals roll up from Expense Tracker entries tagged to each line (same as Foundation)
   const actualByLine=useMemo(()=>{ const m={}; (tracker||[]).forEach(t=>{ if(t.budgetLineId){ m[t.budgetLineId]=(m[t.budgetLineId]||0)+(t.cost||0); } }); return m; },[tracker]);
   const la=(r)=>actualByLine[r.id]||0;
-
-  // ---- (1) LODGING ROLLUP: every room/lodging line, whoever pays --------------------
-  // Edit this list if you rename a lodging line in the Budget tab.
-  const LODGING_ITEMS=["Staff Lodging","Volunteer Room Blocks","Hotel","Housing Experience"];
-  const lodgeLines=expenses.filter(r=>LODGING_ITEMS.includes(r.item));
-  const lodgeTotal=lodgeLines.reduce((a,r)=>a+effEstimated(r,settings),0);
-  const lodgePaid=lodgeLines.reduce((a,r)=>a+la(r),0);
-  const ROOM_NIGHTS=727; // contractual commitment (JW Marriott Turnberry)
 
   // ---- (2) HOUSING-ENTITY RECONCILIATION: mirror of Foundation -----------------------
   const hLines=expenses.filter(r=>r.entity==="Housing");
@@ -2926,23 +3004,6 @@ function Housing({expenses,income,settings,tracker}){
   const variance=reimb-obligation;
 
   return <div className="space-y-5">
-
-    {/* ===== Room Block & Lodging rollup ===== */}
-    <SectionTitle sub="Every room and lodging line across the budget — staff, volunteers, and the undergraduate hotel subsidy — in one place, whoever pays. Contractual commitment: 727 room-nights; attrition applies if pickup runs short.">Room Block &amp; Lodging Overview</SectionTitle>
-    <div className="grid gap-3" style={{gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))"}}>
-      <Kpi label="Total lodging spend" value={usd(lodgeTotal)} sub="All room/lodging lines" tone={C.deep} accent/>
-      <Kpi label="Logged to date" value={usd(lodgePaid)} sub={pct(lodgeTotal?lodgePaid/lodgeTotal:0)+" of budget"} tone={C.nile}/>
-      <Kpi label="Room-night commitment" value={String(ROOM_NIGHTS)} sub="Attrition risk if pickup is short" tone={C.gold}/>
-    </div>
-    <Card pad={false}>
-      <div className="px-4 py-3" style={{background:C.deep,borderRadius:"14px 14px 0 0"}}><h3 className="text-white font-semibold text-sm" style={{fontFamily:"Fraunces,serif"}}>Room block &amp; lodging lines</h3></div>
-      <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr style={{color:C.muted}} className="text-[11px] uppercase">{["Category","Line item","Pays","Estimate","Actual"].map((h,i)=><th key={i} className="text-left font-semibold px-3 py-2" style={{borderBottom:`1px solid ${C.line}`}}>{h}</th>)}</tr></thead>
-        <tbody>{lodgeLines.map(r=>{ const eff=effEstimated(r,settings); const a=la(r);
-          return <tr key={r.id} style={{borderBottom:`1px solid ${C.line}`}}><td className="px-3 py-2" style={{color:C.muted}}>{r.category.slice(0,28)}</td><td className="px-3 py-2 font-medium">{r.item}</td><td className="px-3 py-2">{r.entity}</td><td className="px-3 py-2">{usd(eff)}</td><td className="px-3 py-2">{a>0?usd(a):"—"}</td></tr>; })}
-          {lodgeLines.length===0 && <tr><td colSpan={5} className="px-4 py-8 text-center" style={{color:C.muted}}>No lodging lines found. Name a line “Staff Lodging”, “Volunteer Room Blocks”, “Hotel”, or “Housing Experience”, or edit LODGING_ITEMS above.</td></tr>}
-          <tr style={{background:C.paper}}><td className="px-3 py-2 font-bold" colSpan={3}>Total</td><td className="px-3 py-2 font-bold">{usd(lodgeTotal)}</td><td className="px-3 py-2 font-bold">{lodgePaid>0?usd(lodgePaid):"—"}</td></tr>
-        </tbody></table></div>
-    </Card>
 
     {/* ===== Housing Corp reimbursement reconciliation (mirrors Foundation) ===== */}
     <SectionTitle sub="Everything tagged “Housing” as the paying entity (Housing Corp), netted against the Housing reimbursement budgeted in Income. Paid amounts roll up from Expense Tracker entries tagged to each line.">Housing Corp Reimbursement Reconciliation</SectionTitle>
