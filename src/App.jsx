@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { LayoutDashboard, Wallet, CalendarClock, HelpCircle, Map as MapIcon, Users, Search, Plus, Trash2, X, ChevronDown, MapPin, Phone, FileText, FileSpreadsheet, Upload, Image as ImageIcon, ArrowLeftRight, User, CalendarDays, Pencil, Check, Loader2, RefreshCw, Download, Copy, ExternalLink, History, ShieldCheck, AlertTriangle, Handshake, Building2, GraduationCap, Clock, Tv } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart, Pie, CartesianGrid } from "recharts";
 import { supabase, sget, sset, signInWithPassword, signOut, getSession, uploadMapImage } from "./supabase.js";
+import { PATCH_ID, PATCH_LABEL, previewSchedulePatch } from "./schedulePatch.js";
+import { BUDGET_PATCH_ID, BUDGET_PATCH_LABEL, previewBudgetPatch } from "./budgetPatch.js";
 
 /* Storage + auth + image uploads come from Supabase. See src/supabase.js */
 /* Storage + auth + image uploads now come from Supabase. See src/supabase.js */
@@ -31,6 +33,7 @@ const ROOM_LIST = [
   "Garden Foyer",
   "Gold Office",
   "History Library",
+  "Hotel Lobby Bar",
   "Jenkins Suite",
   "Keys Boardroom",
   "King Ballroom 1",
@@ -101,7 +104,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Load-in day. Pixel Point builds the Majestic Ballroom; staff stage signage, registration materials and storage."
     },
     {
         "id": "ev2",
@@ -119,7 +123,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Walk every space with the hotel event team to confirm sets, F&B, AV hand-offs and the Schedule of Events."
     },
     {
         "id": "ev3",
@@ -139,7 +144,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Staff run-through of the ICA agenda, scripts, voting process and floor logistics before delegates arrive."
     },
     {
         "id": "ev4",
@@ -157,7 +163,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Staff dinner before the evening's first events."
     },
     {
         "id": "ev5",
@@ -177,7 +184,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Kickoff briefing: roles, the Staff Plan, radios/communication, escalation contacts and a walk of the key rooms."
     },
     {
         "id": "ev6",
@@ -197,7 +205,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Private welcome for Grand Council, Foundation board and HQ staff to open the week."
     },
     {
         "id": "ev7",
@@ -209,18 +218,18 @@ const SEED_SCHEDULE = [
         "category": "Social/Reception",
         "owner": "Andrew",
         "rooms": [
-            "Majestic South Foyer",
-            "Royal South Foyer"
+            "Hotel Lobby Bar"
         ],
-        "setup": "Reception / Casual",
-        "avNote": "Music",
-        "avCompany": "Pixel Point LLC",
+        "setup": "Reception / Casual (hotel lobby bar)",
+        "avNote": "None — hotel bar ambient",
+        "avCompany": "TBD / Not yet assigned",
         "avItems": [
             "Background music speaker"
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Casual meet-up for brothers arriving Wednesday. No program; a chance to reconnect before things get busy."
     },
     {
         "id": "ev8",
@@ -240,7 +249,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Daily 30-minute staff huddle: the day's run-of-show, changes overnight, open issues and assignments."
     },
     {
         "id": "ev9",
@@ -262,7 +272,8 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Grand Council business session ahead of convention."
     },
     {
         "id": "ev10",
@@ -285,7 +296,8 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Attendees check in, pick up badges and convention materials, and get oriented."
     },
     {
         "id": "ev11",
@@ -307,7 +319,8 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Foundation leadership meeting on the campaign and the weekend's donor plan."
     },
     {
         "id": "ev12",
@@ -315,11 +328,11 @@ const SEED_SCHEDULE = [
         "start": "11:00",
         "end": "12:00",
         "allDay": false,
-        "name": "Committee Meetings (Ritual, DEI, Resolutions, Housing)",
+        "name": "Committee Meetings (Ritual, DEI, Resolutions)",
         "category": "Logistics",
         "owner": "Board",
         "rooms": [
-            "Palmetto 1\u20134 (one each)"
+            "Palmetto 1–3 (one each)"
         ],
         "setup": "U-Shape",
         "avNote": "Projection per room",
@@ -329,7 +342,8 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Standing committees (Ritual, DEI, Resolutions) meet in parallel, one room each, to prepare business for the ICA."
     },
     {
         "id": "ev13",
@@ -347,7 +361,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Staggered staff lunch; floating coverage stays on the radio."
     },
     {
         "id": "ev14",
@@ -369,7 +384,8 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Singing Pilgrims rehearse for upcoming ceremonies and the banquet."
     },
     {
         "id": "ev15",
@@ -386,59 +402,39 @@ const SEED_SCHEDULE = [
         ],
         "setup": "Special / Empty",
         "avNote": "Projection + Audio",
-        "avCompany": "Pinnacle Live (in-house)",
+        "avCompany": "Pixel Point LLC",
         "avItems": [
             "Large projection screen(s)",
             "Full audio mix"
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Ceremony initiating alumni initiates into Delta Sigma Phi. Ritual setting; room closed to non-members."
     },
     {
         "id": "ev16",
         "date": "2027-08-05",
         "start": "15:00",
-        "end": "16:30",
+        "end": "17:00",
         "allDay": false,
         "name": "Pilgrim Degree",
         "category": "Ceremony",
         "owner": "Andrew",
         "rooms": [
-            "Majestic Ballroom (All)",
-            "Jenkins Suite"
+            "Majestic Ballroom (All)"
         ],
         "setup": "Special / Empty",
         "avNote": "Projection + Audio",
-        "avCompany": "Pinnacle Live (in-house)",
+        "avCompany": "Pixel Point LLC",
         "avItems": [
             "Large projection screen(s)",
             "Full audio mix"
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
-    },
-    {
-        "id": "ev17",
-        "date": "2027-08-05",
-        "start": "16:30",
-        "end": "17:30",
-        "allDay": false,
-        "name": "Transition / Pool & Common Areas Open",
-        "category": "Social/Reception",
-        "owner": "Andrew",
-        "rooms": [
-            "Common Areas",
-            "Pool"
-        ],
-        "setup": "Open",
-        "avNote": "N/A",
-        "avCompany": "TBD / Not yet assigned",
-        "avItems": [],
-        "assignees": [],
-        "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Pilgrim Degree ceremony. Ritual setting; room closed to non-members."
     },
     {
         "id": "ev19",
@@ -458,7 +454,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Welcome reception for spouses and guests: meet the guest program team and preview the week's guest events."
     },
     {
         "id": "ev20",
@@ -473,15 +470,16 @@ const SEED_SCHEDULE = [
             "Majestic South Foyer",
             "Porte Cochere"
         ],
-        "setup": "Reception (Indoor/Outdoor)",
+        "setup": "Reception (indoor/outdoor) with a short stage moment: four Next Era awards, Order of the Sphinx, Next Era chapter awards. Brotherhood Circles follow.",
         "avNote": "Music + Live Music Setup",
-        "avCompany": "Pixel Point LLC",
+        "avCompany": "Pinnacle Live (in-house)",
         "avItems": [
             "Background music speaker"
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Official program kickoff, including for undergraduate delegates. Short stage moment for the four Next Era awards, Order of the Sphinx and Next Era chapter awards, then Brotherhood Circles."
     },
     {
         "id": "ev21",
@@ -509,31 +507,29 @@ const SEED_SCHEDULE = [
         "ongoingDates": [
             "2027-08-05",
             "2027-08-06"
-        ]
+        ],
+        "description": "The Majestic Ballroom in ICA configuration for business sessions and ceremonies, Thursday through Saturday morning."
     },
     {
         "id": "ev22",
-        "date": null,
-        "start": null,
-        "end": null,
-        "allDay": true,
-        "name": "Michelle's Closet",
+        "date": "2027-08-05",
+        "start": "10:00",
+        "end": "18:00",
+        "allDay": false,
+        "name": "Michelle's Closet — presented by Men's Wearhouse",
         "category": "Programming",
-        "owner": "Andrew",
+        "owner": "Men's Wearhouse (on site) / Andrew",
         "rooms": [
             "Palmetto 7"
         ],
-        "setup": "Exhibit",
-        "avNote": "N/A",
-        "avCompany": "TBD / Not yet assigned",
+        "setup": "Fitting room: 2 pipe-and-drape fitting booths, full-length mirrors, tie & shoe table, steamer power, lockable overnight storage. Kits bought on site: need-based at no cost, or $100 buy-in with the Foundation Michelle's Closet fund covering the rest. No rentals.",
+        "avNote": "Pipe & drape for 2 fitting booths; power for steamer",
+        "avCompany": "Pinnacle Live (in-house)",
         "avItems": [],
         "assignees": [],
-        "ongoing": true,
-        "ongoingDates": [
-            "2027-08-05",
-            "2027-08-06",
-            "2027-08-07"
-        ]
+        "ongoing": false,
+        "ongoingDates": [],
+        "description": "Men's Wearhouse fits undergraduates for convention attire on site. Need-based students are outfitted at no cost; others can buy a suit for $100, with the Foundation's Michelle's Closet fund covering the balance."
     },
     {
         "id": "ev23",
@@ -556,7 +552,8 @@ const SEED_SCHEDULE = [
         "ongoingDates": [
             "2027-08-05",
             "2027-08-06"
-        ]
+        ],
+        "description": "HQ business operations workroom for the duration of convention."
     },
     {
         "id": "ev24",
@@ -580,7 +577,8 @@ const SEED_SCHEDULE = [
             "2027-08-05",
             "2027-08-06",
             "2027-08-07"
-        ]
+        ],
+        "description": "Housing Corporation space with resources and conversations for chapter housing volunteers."
     },
     {
         "id": "ev25",
@@ -597,7 +595,7 @@ const SEED_SCHEDULE = [
         ],
         "setup": "Exhibit / Tables",
         "avNote": "Music",
-        "avCompany": "Pixel Point LLC",
+        "avCompany": "Pinnacle Live (in-house)",
         "avItems": [
             "Background music speaker"
         ],
@@ -606,7 +604,8 @@ const SEED_SCHEDULE = [
         "ongoingDates": [
             "2027-08-05",
             "2027-08-07"
-        ]
+        ],
+        "description": "Registration desk and vendor/sponsor area. First stop for attendee questions."
     },
     {
         "id": "ev26",
@@ -630,7 +629,8 @@ const SEED_SCHEDULE = [
             "2027-08-05",
             "2027-08-06",
             "2027-08-07"
-        ]
+        ],
+        "description": "Staff home base: storage, lost & found, first aid kit, vendor check-in."
     },
     {
         "id": "ev27",
@@ -650,7 +650,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Daily 30-minute staff huddle: the day's run-of-show, changes overnight, open issues and assignments."
     },
     {
         "id": "ev30",
@@ -658,7 +659,7 @@ const SEED_SCHEDULE = [
         "start": "10:00",
         "end": "12:00",
         "allDay": false,
-        "name": "Guest Event \u2014 Offsite Excursion",
+        "name": "Guest Event — Offsite Excursion",
         "category": "Guest Event",
         "owner": "Andrew / Diane",
         "rooms": [
@@ -670,7 +671,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Off-site excursion for spouses and guests while delegates are in the ICA."
     },
     {
         "id": "ev31",
@@ -678,17 +680,20 @@ const SEED_SCHEDULE = [
         "start": "12:00",
         "end": "13:00",
         "allDay": false,
-        "name": "Lunch",
-        "category": "Food Trucks",
+        "name": "Food Truck Friday — Lunch",
+        "category": "Meal",
         "owner": "",
-        "rooms": [],
-        "setup": "",
-        "avNote": "N/A",
+        "rooms": [
+            "Outdoors — outside Majestic Ballroom & Foyer"
+        ],
+        "setup": "Food trucks parked outside the Majestic Ballroom & Foyer; shaded seating + weather call by 9 AM (backup: foyer). Promote it: menu reveal in pre-con comms, signage, music.",
+        "avNote": "Background music",
         "avCompany": "TBD / Not yet assigned",
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Food Truck Friday: food trucks just outside the Majestic Ballroom and Foyer, lunch for all attendees between the ICA and afternoon programming."
     },
     {
         "id": "ev32",
@@ -696,21 +701,22 @@ const SEED_SCHEDULE = [
         "start": "13:00",
         "end": "17:00",
         "allDay": false,
-        "name": "Undergraduate Educational Sessions",
+        "name": "Undergraduate Education — Explore (Off-site)",
         "category": "Programming",
         "owner": "Andrew",
         "rooms": [
-            "Palmetto rooms (TBD)"
+            "Offsite"
         ],
-        "setup": "Classroom",
-        "avNote": "Projection per room",
-        "avCompany": "Pinnacle Live (in-house)",
+        "setup": "Off-site experiential block. Coaches (305 Transportation) load at the hotel before 1:00 PM and return by 5:00 PM.",
+        "avNote": "N/A — partner venues",
+        "avCompany": "TBD / Not yet assigned",
         "avItems": [
             "Large projection screen(s)"
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Explore: off-site experiential learning for undergraduate delegates. Part of 8 hours of education across Friday and Saturday; attendance tracked by QR scan."
     },
     {
         "id": "ev33",
@@ -718,13 +724,13 @@ const SEED_SCHEDULE = [
         "start": "12:30",
         "end": "14:00",
         "allDay": false,
-        "name": "Alcove Society Reception",
+        "name": "Alcove Society Reception & Lunch",
         "category": "Donor/Society",
         "owner": "Foundation",
         "rooms": [
-            "Corsair Restaurant (Private Space)"
+            "Palmetto 7"
         ],
-        "setup": "Cocktail / Low Tops",
+        "setup": "Reception into seated lunch, rounds; top-donor stewardship. Michelle's Closet (Thu) and the wine tasting (Sat) use the same room.",
         "avNote": "Music",
         "avCompany": "Pinnacle Live (in-house)",
         "avItems": [
@@ -732,13 +738,14 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Reception and seated lunch thanking Alcove Society members, Delta Sig's top donors. Invitation only."
     },
     {
         "id": "ev34",
         "date": "2027-08-06",
-        "start": "14:00",
-        "end": "15:00",
+        "start": "16:00",
+        "end": "17:00",
         "allDay": false,
         "name": "Singing Pilgrims Rehearsal",
         "category": "Logistics",
@@ -754,7 +761,8 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Singing Pilgrims rehearse for upcoming ceremonies and the banquet."
     },
     {
         "id": "ev36",
@@ -762,15 +770,14 @@ const SEED_SCHEDULE = [
         "start": "18:00",
         "end": "20:00",
         "allDay": false,
-        "name": "Foundation Reception - Festival Of Impact",
+        "name": "Pillar Street — A Foundation Block Party",
         "category": "Donor/Society",
         "owner": "Foundation",
         "rooms": [
-            "Majestic South Foyer",
-            "Porte Cochere"
+            "Majestic South Foyer"
         ],
-        "setup": "Reception (Indoor/Outdoor)",
-        "avNote": "Full A/V + Auction Setup",
+        "setup": "Indoor street: four pillar storefronts + promenade, two guest entrances, foyer stage, giving tower. ~75 min on the street, then ~20 min program incl. 15-min paddle raise.",
+        "avNote": "Stage + band sound, 4 storefront screens, giving-tower lighting, paddle-raise audio",
         "avCompany": "Pinnacle Live (in-house)",
         "avItems": [
             "Large projection screen(s)",
@@ -781,28 +788,8 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
-    },
-    {
-        "id": "ev37",
-        "date": "2027-08-06",
-        "start": "21:00",
-        "end": null,
-        "allDay": false,
-        "name": "Informal Socials / Brotherhood Circles",
-        "category": "Social/Reception",
-        "owner": "Andrew",
-        "rooms": [
-            "Common Areas",
-            "Foyers"
-        ],
-        "setup": "Open",
-        "avNote": "N/A",
-        "avCompany": "TBD / Not yet assigned",
-        "avItems": [],
-        "assignees": [],
-        "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "The Foundation's Friday night: an indoor street of four pillar storefronts telling the story of what brothers have built, followed by a short program and the weekend's only paddle raise."
     },
     {
         "id": "ev40",
@@ -827,7 +814,8 @@ const SEED_SCHEDULE = [
         "ongoingDates": [
             "2027-08-06",
             "2027-08-07"
-        ]
+        ],
+        "description": "Displays from Delta Sig's archives and history, open for browsing."
     },
     {
         "id": "ev44",
@@ -847,7 +835,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Daily 30-minute staff huddle: the day's run-of-show, changes overnight, open issues and assignments."
     },
     {
         "id": "ev45",
@@ -870,7 +859,8 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Memorial ceremony honoring brothers who have entered the Bond Eternal."
     },
     {
         "id": "ev46",
@@ -878,7 +868,7 @@ const SEED_SCHEDULE = [
         "start": "09:30",
         "end": "11:30",
         "allDay": false,
-        "name": "ICA Session 4",
+        "name": "ICA Session 2: Next Era of Value",
         "category": "Programming",
         "owner": "Andrew",
         "rooms": [
@@ -895,7 +885,8 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Business session two, including a 20–25 minute Foundation segment announcing the new giving societies and alumni associations."
     },
     {
         "id": "ev47",
@@ -915,13 +906,14 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Resolutions Committee meets to wrap up resolutions business."
     },
     {
         "id": "ev48",
         "date": "2027-08-07",
-        "start": "11:30",
-        "end": "12:00",
+        "start": "13:00",
+        "end": "14:00",
         "allDay": false,
         "name": "Singing Pilgrims Rehearsal",
         "category": "Logistics",
@@ -937,7 +929,8 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Singing Pilgrims rehearse for upcoming ceremonies and the banquet."
     },
     {
         "id": "ev49",
@@ -957,7 +950,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Board meeting with elections, held over lunch."
     },
     {
         "id": "ev50",
@@ -975,7 +969,8 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Staggered staff lunch; floating coverage stays on the radio."
     },
     {
         "id": "ev51",
@@ -983,84 +978,67 @@ const SEED_SCHEDULE = [
         "start": "13:00",
         "end": "17:00",
         "allDay": false,
-        "name": "Undergraduate Educational Sessions",
+        "name": "Undergraduate Education — Apply (Off-site)",
         "category": "Programming",
         "owner": "Andrew",
         "rooms": [
-            "Palmetto rooms (TBD)"
+            "Offsite"
         ],
-        "setup": "Classroom",
-        "avNote": "Projection per room",
-        "avCompany": "Pinnacle Live (in-house)",
+        "setup": "Off-site experiential block. Coaches (305 Transportation) load at the hotel before 1:00 PM and return by 5:00 PM.",
+        "avNote": "N/A — partner venues",
+        "avCompany": "TBD / Not yet assigned",
         "avItems": [
             "Large projection screen(s)"
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Apply: off-site block for undergraduate delegates, building on Friday's Explore. Attendance tracked by QR scan."
     },
     {
         "id": "ev53",
         "date": "2027-08-07",
-        "start": "16:00",
-        "end": "17:00",
+        "start": "15:00",
+        "end": "16:30",
         "allDay": false,
-        "name": "Justin Baldwin Wine Tasting (Private)",
+        "name": "Saturday Alumni Experiences (Paid Add-On)",
         "category": "Donor/Society",
-        "owner": "Foundation",
-        "rooms": [],
-        "setup": "Cocktail / Schoolroom",
-        "avNote": "2 Projections",
-        "avCompany": "Pinnacle Live (in-house)",
-        "avItems": [
-            "Large projection screen(s)"
-        ],
-        "assignees": [],
-        "ongoing": false,
-        "ongoingDates": []
-    },
-    {
-        "id": "ev54",
-        "date": "2027-08-07",
-        "start": "18:30",
-        "end": "18:45",
-        "allDay": false,
-        "name": "Staff Pre-Banquet Meeting",
-        "category": "Logistics",
-        "owner": "Andrew",
+        "owner": "Foundation / Andrew",
         "rooms": [
-            "Gold Office"
+            "Palmetto 7",
+            "Magnolia Courtyard"
         ],
-        "setup": "Conference",
-        "avNote": "N/A",
-        "avCompany": "TBD / Not yet assigned",
+        "setup": "Pick one: (1) Justin Baldwin Wine Tasting — Palmetto 7, 30–50 guests, hotel cheese station; (2) Cigar Rolling with ETHOS — Magnolia Courtyard (Corsair lawn backup). Bourbon dropped.",
+        "avNote": "Wine: light AV only (no décor/AV package). Cigar: outdoor speaker optional.",
+        "avCompany": "Pinnacle Live (in-house)",
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Paid add-on for alumni and guests; pick one. Justin Baldwin Wine Tasting (Palmetto 7, with a cheese station) or Cigar Rolling with ETHOS (Magnolia Courtyard)."
     },
     {
         "id": "ev55",
         "date": "2027-08-07",
-        "start": "17:00",
-        "end": "18:00",
+        "start": "17:30",
+        "end": "18:30",
         "allDay": false,
         "name": "Pre-Dinner Reception",
         "category": "Social/Reception",
         "owner": "Andrew",
         "rooms": [
-            "Majestic South Foyer",
-            "Porte Cochere"
+            "Majestic South Foyer"
         ],
         "setup": "High Tops",
         "avNote": "Music Setup",
-        "avCompany": "Pixel Point LLC",
+        "avCompany": "Pinnacle Live (in-house)",
         "avItems": [
             "Background music speaker"
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Cocktail reception before the Closing Banquet; the group photo happens during it."
     },
     {
         "id": "ev56",
@@ -1081,13 +1059,14 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "All-attendee convention photo on the risers."
     },
     {
         "id": "ev57",
         "date": "2027-08-07",
         "start": "19:00",
-        "end": "21:30",
+        "end": "21:00",
         "allDay": false,
         "name": "Closing Banquet + Campaign Celebration",
         "category": "Social/Reception",
@@ -1106,28 +1085,29 @@ const SEED_SCHEDULE = [
         ],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "The convention finale: about five major alumni-weighted awards and the $40M campaign reveal. Pure celebration, no solicitation."
     },
     {
         "id": "ev58",
         "date": "2027-08-07",
-        "start": "22:00",
-        "end": null,
+        "start": "21:00",
+        "end": "23:00",
         "allDay": false,
-        "name": "Evening Celebrations",
+        "name": "Closing Dance Party (Tentative)",
         "category": "Social/Reception",
         "owner": "Andrew",
         "rooms": [
-            "Common Areas",
-            "Foyers"
+            "Majestic South Foyer"
         ],
-        "setup": "Open",
-        "avNote": "N/A",
-        "avCompany": "TBD / Not yet assigned",
+        "setup": "DJ + dance floor in the foyer; ballroom stays in banquet set",
+        "avNote": "DJ support + dance lighting",
+        "avCompany": "Pinnacle Live (in-house)",
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Closing dance party in the Majestic Foyer right after the banquet. Tentative."
     },
     {
         "id": "ev64",
@@ -1148,25 +1128,31 @@ const SEED_SCHEDULE = [
         "avItems": [],
         "assignees": [],
         "ongoing": false,
-        "ongoingDates": []
+        "ongoingDates": [],
+        "description": "Strike and load-out of all convention spaces."
     },
     {
         "id": "ev65",
         "date": "2027-08-06",
-        "start": "13:00",
-        "end": "15:00",
+        "start": "14:00",
+        "end": "16:00",
         "allDay": false,
         "ongoing": false,
         "ongoingDates": [],
         "name": "Alumni Education Sessions",
-        "category": "",
+        "category": "Programming",
         "owner": "",
-        "rooms": [],
-        "setup": "Topics: Housing, Business ops, alumni",
-        "avNote": "",
-        "avCompany": "TBD / Not yet assigned",
+        "rooms": [
+            "Palmetto 1",
+            "Palmetto 2",
+            "Palmetto 3"
+        ],
+        "setup": "Classroom; one session per room",
+        "avNote": "Projection per room",
+        "avCompany": "Pinnacle Live (in-house)",
         "avItems": [],
-        "assignees": []
+        "assignees": [],
+        "description": "Alumni education sessions on fraternity operations, such as chapter advising, housing and alumni engagement."
     },
     {
         "id": "ev66",
@@ -1176,7 +1162,7 @@ const SEED_SCHEDULE = [
         "allDay": false,
         "ongoing": false,
         "ongoingDates": [],
-        "name": "ICA Session 1",
+        "name": "ICA Session 1: Next Era in Action",
         "category": "Programming",
         "owner": "Andrew",
         "rooms": [
@@ -1191,7 +1177,55 @@ const SEED_SCHEDULE = [
             "Full audio mix",
             "Full stage lighting"
         ],
-        "assignees": []
+        "assignees": [],
+        "description": "Business session one: reports and the state of the board, with operations and voting held to about an hour. Order of the Sphinx and chapter/undergraduate awards are presented here."
+    },
+    {
+        "id": "ev200",
+        "date": "2027-08-05",
+        "start": "11:00",
+        "end": "12:00",
+        "allDay": false,
+        "name": "Housing Board Meeting",
+        "category": "Logistics",
+        "owner": "Housing Corp",
+        "rooms": [
+            "Keys Boardroom"
+        ],
+        "setup": "Conference / Boardroom",
+        "avNote": "Projection",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": false,
+        "ongoingDates": [],
+        "description": "Housing Corporation board meeting."
+    },
+    {
+        "id": "ev201",
+        "date": "",
+        "start": "",
+        "end": "",
+        "allDay": true,
+        "name": "No. 1 Pillar Street — Foundation Stewardship Station",
+        "category": "Donor/Society",
+        "owner": "Foundation",
+        "rooms": [
+            "Majestic South Foyer"
+        ],
+        "setup": "Staffed lounge: hotel lounge furniture, rugs and plants; Next Era wall; campaign progress on a screen",
+        "avNote": "1 screen for campaign progress",
+        "avCompany": "Pinnacle Live (in-house)",
+        "avItems": [],
+        "assignees": [],
+        "ongoing": true,
+        "ongoingDates": [
+            "2027-08-04",
+            "2027-08-05",
+            "2027-08-06",
+            "2027-08-07"
+        ],
+        "description": "The Foundation's staffed stewardship lounge all weekend: a place for donors to stop in, be thanked, and see campaign progress."
     }
 ];
 const SEED_PEOPLE = [
@@ -1483,7 +1517,7 @@ const SEED_BLOCKS = [
             ""
         ],
         "kind": "floating",
-        "label": "Floating \u2014 available for any issue",
+        "label": "Floating — available for any issue",
         "eventId": null
     },
     {
@@ -1519,10 +1553,9 @@ const SEED_BLOCKS = [
         "person": "Diane Larson",
         "date": "2027-08-05",
         "start": "15:00",
-        "end": "16:30",
+        "end": "17:00",
         "rooms": [
-            "Majestic Ballroom (All)",
-            "Jenkins Suite"
+            "Majestic Ballroom (All)"
         ],
         "kind": "event",
         "label": "Pilgrim Degree",
@@ -1564,7 +1597,7 @@ const SEED_BLOCKS = [
             ""
         ],
         "kind": "floating",
-        "label": "Floating \u2014 wrap-up / help where needed",
+        "label": "Floating — wrap-up / help where needed",
         "eventId": null
     },
     {
@@ -1590,7 +1623,7 @@ const SEED_BLOCKS = [
             "Majestic Ballroom (All)"
         ],
         "kind": "duty",
-        "label": "On-call tech support \u2014 Keynote + ICA 2",
+        "label": "On-call tech support — Keynote + ICA 2",
         "eventId": null
     },
     {
@@ -1603,7 +1636,7 @@ const SEED_BLOCKS = [
             "Palmetto rooms (TBD)"
         ],
         "kind": "duty",
-        "label": "Tech support \u2014 Educational Sessions",
+        "label": "Tech support — Educational Sessions",
         "eventId": null
     },
     {
@@ -1613,10 +1646,10 @@ const SEED_BLOCKS = [
         "start": "13:00",
         "end": "17:00",
         "rooms": [
-            "Palmetto rooms (TBD)"
+            "Offsite"
         ],
         "kind": "event",
-        "label": "Undergraduate Educational Sessions",
+        "label": "Undergraduate Education — Explore (Off-site)",
         "eventId": "ev32"
     },
     {
@@ -1638,10 +1671,9 @@ const SEED_BLOCKS = [
         "person": "Wyatt Young",
         "date": "2027-08-05",
         "start": "15:00",
-        "end": "16:30",
+        "end": "17:00",
         "rooms": [
-            "Majestic Ballroom (All)",
-            "Jenkins Suite"
+            "Majestic Ballroom (All)"
         ],
         "kind": "event",
         "label": "Pilgrim Degree",
@@ -1670,7 +1702,7 @@ const SEED_BLOCKS = [
             "Offsite"
         ],
         "kind": "event",
-        "label": "Guest Event \u2014 Offsite Excursion",
+        "label": "Guest Event — Offsite Excursion",
         "eventId": "ev30"
     },
     {
@@ -1683,7 +1715,7 @@ const SEED_BLOCKS = [
             ""
         ],
         "kind": "floating",
-        "label": "Floating \u2014 available after excursion return",
+        "label": "Floating — available after excursion return",
         "eventId": null
     }
 ];
@@ -1739,8 +1771,8 @@ const SEED_FAQ = [{"id": "f1", "q": "A guest needs the hotel wifi password", "a"
 const SEED_MAP = { imageUrl:"/floorplan-seed.png", note:"JW Marriott Turnberry — Conference Center, Floors 1 & 2. Majestic Ballroom 1-8 are Floor 1, off the Majestic corridor. Palmetto 1-8 and Keys Boardroom are Floor 2." };
 
 /* ----------------------------- budget seed data (from Budget Hub artifact) ----------------------------- */
-const SEED_EXPENSES = [{"category": "Staff & Volunteer Operations", "item": "Staff Transportation", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 17.78, "estimated": 8000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e1"}, {"category": "Staff & Volunteer Operations", "item": "Staff Lodging", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 66.67, "estimated": 30000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e2"}, {"category": "Staff & Volunteer Operations", "item": "Staff Per Diem", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 15.56, "estimated": 7000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e3"}, {"category": "Staff & Volunteer Operations", "item": "Staff Appreciation Gift", "attendeeType": "All", "entity": "Fraternity", "description": "???", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e4"}, {"category": "Staff & Volunteer Operations", "item": "Volunteer Room Blocks", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 8.89, "estimated": 4000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e5"}, {"category": "Staff & Volunteer Operations", "item": "Staff & Volunteer Clothing (Polos, Name Badges)", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 4.44, "estimated": 2000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e6"}, {"category": "Staff & Volunteer Operations", "item": "Tipping (hotel staff, drivers)", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e7"}, {"category": "Staff & Volunteer Operations", "item": "Volunteer Training Materials", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 0.22, "estimated": 100.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e8"}, {"category": "Staff & Volunteer Operations", "item": "Staff Transportation (Ground)", "attendeeType": "All", "entity": "Fraternity", "description": "Ubers to and from airport", "quantity": 450.0, "unitCost": 2.22, "estimated": 1000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e9"}, {"category": "Staff & Volunteer Operations", "item": "Valet at Hotel", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 2.22, "estimated": 1000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e10"}, {"category": "Staff & Volunteer Operations", "item": "Preperation Costs", "attendeeType": "All", "entity": "Fraternity", "description": "Covers site visit travel and expenses", "quantity": 450.0, "unitCost": 4.44, "estimated": 2000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e11"}, {"category": "Staff & Volunteer Operations", "item": "Staff Compensation", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 13.33, "estimated": 6000.0, "actual": 0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e12"}, {"category": "Staff & Volunteer Operations", "item": "Truck Driving/Logistics", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 4.44, "estimated": 2000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e13"}, {"category": "Convention Technology & Digital Infrastructure", "item": "Website and Attendee Hub", "attendeeType": "All", "entity": "Fraternity", "description": "Event App or Microsite Development", "quantity": 450.0, "unitCost": 75.56, "estimated": 34000.0, "actual": 0.0, "grantable": true, "grantPct": 50, "approval": "Draft", "approver": "", "scales": true, "id": "e14"}, {"category": "Convention Technology & Digital Infrastructure", "item": "Badge Printing Technology and Registration", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 20.0, "estimated": 9000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e15"}, {"category": "Convention Technology & Digital Infrastructure", "item": "Onsite Wi-Fi/Tech Rentals", "attendeeType": "All", "entity": "Fraternity", "description": "Encore Fees and Wifi", "quantity": 450.0, "unitCost": 33.33, "estimated": 15000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e16"}, {"category": "Convention Technology & Digital Infrastructure", "item": "AV for Main Programming", "attendeeType": "All", "entity": "Fraternity", "description": "Pixel Point", "quantity": 450.0, "unitCost": 122.22, "estimated": 55000.0, "actual": 0.0, "grantable": true, "grantPct": 50, "approval": "Draft", "approver": "", "scales": true, "id": "e17"}, {"category": "Attendee Experience & Gift Materials", "item": "Convention Gift Bag Items (Socks, Notebook, Pen, Pin, Stickers)", "attendeeType": "All", "entity": "Fraternity", "description": "No Tshirt", "quantity": 450.0, "unitCost": 35.0, "estimated": 18900.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e18"}, {"category": "Attendee Experience & Gift Materials", "item": "Product Orders (Fez, Badge, etc)", "attendeeType": "Individual", "entity": "Fraternity", "description": "", "quantity": 100.0, "unitCost": 50.0, "estimated": 5000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e19"}, {"category": "Attendee Experience & Gift Materials", "item": "Lanyards, Nametags, Ribbons", "attendeeType": "All", "entity": "Fraternity", "description": "2300 for 550", "quantity": 450.0, "unitCost": 7.0, "estimated": 3780.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e20"}, {"category": "Attendee Experience & Gift Materials", "item": "DSP Chapter Flags", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 2.22, "estimated": 1000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e21"}, {"category": "Attendee Experience & Gift Materials", "item": "Main Area Decor", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 22.22, "estimated": 10000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e22"}, {"category": "Attendee Experience & Gift Materials", "item": "Guest Gift Bags", "attendeeType": "Guests", "entity": "Fraternity", "description": "", "quantity": 70.0, "unitCost": 50.0, "estimated": 3500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e23"}, {"category": "Event Production & General Program Needs", "item": "Pre Con Golf Tournament", "attendeeType": "Individual", "entity": "Fraternity", "description": "", "quantity": 25.0, "unitCost": 150.0, "estimated": 3750.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e24"}, {"category": "Event Production & General Program Needs", "item": "Pilgrim\u2019s Degree Supplies", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e25"}, {"category": "Event Production & General Program Needs", "item": "Brotherhood Circles", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e26"}, {"category": "Event Production & General Program Needs", "item": "Welcome Night Decor", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e27"}, {"category": "Event Production & General Program Needs", "item": "Singing Pilgrims Support (accompanist, supplies)", "attendeeType": "All", "entity": "Fraternity", "description": "Sam Wayne Attendence", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e28"}, {"category": "Event Production & General Program Needs", "item": "Guest Experience Activities (Day 1/Day 2 Events)", "attendeeType": "Guests", "entity": "Fraternity", "description": "", "quantity": 70.0, "unitCost": 100.0, "estimated": 7000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e29"}, {"category": "Event Production & General Program Needs", "item": "Keynote Speaker", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 0.0, "estimated": 0.0, "actual": 0.0, "grantable": true, "grantPct": 100, "approval": "Draft", "approver": "", "scales": false, "id": "e30"}, {"category": "Event Production & General Program Needs", "item": "Educational Sessions", "attendeeType": "Students", "entity": "Fraternity", "description": "All costs including Transportation", "quantity": 130.0, "unitCost": 192.31, "estimated": 25000.0, "actual": 0.0, "grantable": true, "grantPct": 100, "approval": "Draft", "approver": "", "scales": false, "id": "e31"}, {"category": "Event Production & General Program Needs", "item": "1899 Society Event", "attendeeType": "Foundation", "entity": "Foundation", "description": "", "quantity": 0, "unitCost": 0, "estimated": 1000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e32"}, {"category": "Event Production & General Program Needs", "item": "Foundation Reception", "attendeeType": "Foundation", "entity": "Foundation", "description": "Auction Company Fees", "quantity": 0, "unitCost": 0, "estimated": 4000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e33"}, {"category": "Event Production & General Program Needs", "item": "Justin Baldwin Wine Tasting (Decor/AV) (Other Evening Options)", "attendeeType": "Foundation", "entity": "Foundation", "description": "", "quantity": 0, "unitCost": 0, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e34"}, {"category": "Event Production & General Program Needs", "item": "Final Night Social Activity", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e35"}, {"category": "Event Production & General Program Needs", "item": "Banquet Decor", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 6.67, "estimated": 3000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e36"}, {"category": "Event Production & General Program Needs", "item": "History Library", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 2.22, "estimated": 1000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e37"}, {"category": "Event Production & General Program Needs", "item": "Michelle's Closet", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 0.0, "estimated": 0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e38"}, {"category": "Food & Beverage (F&B)", "item": "Board Meeting Meals", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 55.56, "estimated": 25000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e39"}, {"category": "Food & Beverage (F&B)", "item": "Welcome Night Reception", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 75.0, "estimated": 40500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e40"}, {"category": "Food & Beverage (F&B)", "item": "Coffee & Snack Stations", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 12.0, "estimated": 12000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e41"}, {"category": "Food & Beverage (F&B)", "item": "Guest Reception", "attendeeType": "Guests", "entity": "Fraternity", "description": "", "quantity": 70.0, "unitCost": 28.57, "estimated": 2000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e42"}, {"category": "Food & Beverage (F&B)", "item": "Alcove Society Luncheon", "attendeeType": "Foundation", "entity": "Foundation", "description": "", "quantity": 0, "unitCost": 0, "estimated": 5000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e43"}, {"category": "Food & Beverage (F&B)", "item": "1899 Society", "attendeeType": "Foundation", "entity": "Foundation", "description": "", "quantity": 0, "unitCost": 0, "estimated": 15000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e44"}, {"category": "Food & Beverage (F&B)", "item": "Foundation Reception Catering", "attendeeType": "Foundation", "entity": "Foundation", "description": "Off Site", "quantity": 0, "unitCost": 80.0, "estimated": 48000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e45"}, {"category": "Food & Beverage (F&B)", "item": "Final Night VIP Events", "attendeeType": "Foundation", "entity": "Foundation", "description": "", "quantity": 0, "unitCost": 0, "estimated": 5000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e46"}, {"category": "Food & Beverage (F&B)", "item": "Final Night Banquet", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 190.0, "estimated": 86400.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e47"}, {"category": "Ceremony, Awards & Recognition", "item": "Pilgrim Certificates", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 0.44, "estimated": 200.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e48"}, {"category": "Ceremony, Awards & Recognition", "item": "Carnations for Bond Eternal", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e49"}, {"category": "Ceremony, Awards & Recognition", "item": "Color Guard Honorarium & Parking", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 0.44, "estimated": 200.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e50"}, {"category": "Marketing, Media & Promotions", "item": "Photographer & Videographer", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 8.89, "estimated": 4000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e51"}, {"category": "Marketing, Media & Promotions", "item": "Headshots", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 11.11, "estimated": 5000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e52"}, {"category": "Governance & Board Meetings", "item": "Board Meeting AV", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e53"}, {"category": "Governance & Board Meetings", "item": "Foundation Board Room Costs", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e54"}, {"category": "Governance & Board Meetings", "item": "Board Requests", "attendeeType": "All", "entity": "Fraternity", "description": "Tom Archer's water", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e55"}, {"category": "Governance & Board Meetings", "item": "Housing Corp Meeting Expenses", "attendeeType": "All", "entity": "Housing", "description": "", "quantity": 450.0, "unitCost": 1.11, "estimated": 500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e56"}, {"category": "Governance & Board Meetings", "item": "Board Meeting Products (Swag)", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 40.0, "unitCost": 50.0, "estimated": 2000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e57"}, {"category": "Foundation Stewardship & Advancement", "item": "VIP Lounge Materials", "attendeeType": "Foundation", "entity": "Foundation", "description": "", "quantity": 0, "unitCost": 0, "estimated": 2000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e58"}, {"category": "Foundation Stewardship & Advancement", "item": "Campaign Celebration", "attendeeType": "All", "entity": "Foundation", "description": "", "quantity": 0, "unitCost": 0, "estimated": 0, "actual": 0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e59"}, {"category": "Foundation Stewardship & Advancement", "item": "Stewardship Station", "attendeeType": "Foundation", "entity": "Foundation", "description": "", "quantity": 0, "unitCost": 0, "estimated": 2500.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e60"}, {"category": "Foundation Stewardship & Advancement", "item": "Room Drops for Donors", "attendeeType": "Foundation", "entity": "Foundation", "description": "???", "quantity": 0, "unitCost": 0, "estimated": 1000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e61"}, {"category": "Foundation Stewardship & Advancement", "item": "Ribbons / Paddles (Donor-specific)", "attendeeType": "Foundation", "entity": "Foundation", "description": "", "quantity": 0, "unitCost": 0, "estimated": 250.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e62"}, {"category": "Shipping, Supplies & Miscellaneous Logistics", "item": "General Shipping & Storage", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 8.89, "estimated": 4000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e63"}, {"category": "Shipping, Supplies & Miscellaneous Logistics", "item": "AV Equipment Rentals (if not attached to sessions)", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 4.44, "estimated": 2000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e64"}, {"category": "Shipping, Supplies & Miscellaneous Logistics", "item": "Miscellaneous", "attendeeType": "All", "entity": "Fraternity", "description": "", "quantity": 450.0, "unitCost": 22.22, "estimated": 10000.0, "actual": 0.0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": true, "id": "e65"}, {"category": "Undergraduate Travel Expense", "item": "Hotel", "attendeeType": "Students", "entity": "Fraternity", "description": "", "quantity": 130.0, "unitCost": 200.0, "estimated": 26000.0, "actual": 0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e66"}, {"category": "Undergraduate Travel Expense", "item": "Meals", "attendeeType": "Students", "entity": "Fraternity", "description": "", "quantity": 130.0, "unitCost": 100.0, "estimated": 13000.0, "actual": 0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e67"}, {"category": "Undergraduate Travel Expense", "item": "Airfare", "attendeeType": "Students", "entity": "Fraternity", "description": "", "quantity": 130.0, "unitCost": 500.0, "estimated": 65000.0, "actual": 0, "grantable": false, "grantPct": 0, "approval": "Draft", "approver": "", "scales": false, "id": "e68"}];
-const SEED_INCOME = {"registration": [{"group": "Undergraduate", "tier": "Preregistrants (grantable)", "qty": 130, "price": 0, "actualQty": 0, "actualTotal": 0, "window": "Grant-covered", "id": "r1"}, {"group": "Undergraduate", "tier": "Early Bird", "qty": 0, "price": 650, "actualQty": 0, "actualTotal": 0, "window": "Jan 25 \u2013 Apr 1", "id": "r2"}, {"group": "Undergraduate", "tier": "Registration", "qty": 0, "price": 750, "actualQty": 0, "actualTotal": 0, "window": "Apr 1 \u2013 Jun 15", "id": "r3"}, {"group": "Undergraduate", "tier": "After June 15", "qty": 0, "price": 950, "actualQty": 0, "actualTotal": 0, "window": "After Jun 15", "id": "r4"}, {"group": "Undergraduate", "tier": "Host Chapter Discount", "qty": 0, "price": 600, "actualQty": 0, "actualTotal": 0, "window": "Iota Eps, Alpha Chi, Beta Zeta", "id": "r5"}, {"group": "Alumni", "tier": "Early Bird", "qty": 125, "price": 900, "actualQty": 0, "actualTotal": 0, "window": "Jan 25 \u2013 Apr 1", "id": "r6"}, {"group": "Alumni", "tier": "Registration", "qty": 100, "price": 900, "actualQty": 0, "actualTotal": 0, "window": "Apr 1 \u2013 Jun 15", "id": "r7"}, {"group": "Alumni", "tier": "After June 15", "qty": 0, "price": 1000, "actualQty": 0, "actualTotal": 0, "window": "After Jun 15", "id": "r8"}, {"group": "Alumni", "tier": "Former Staff", "qty": 20, "price": 600, "actualQty": 0, "actualTotal": 0, "window": "All times", "id": "r9"}, {"group": "Guests", "tier": "Early Bird", "qty": 45, "price": 900, "actualQty": 0, "actualTotal": 0, "window": "Jan 25 \u2013 Apr 1", "id": "r10"}, {"group": "Guests", "tier": "Registration", "qty": 30, "price": 900, "actualQty": 0, "actualTotal": 0, "window": "Apr 1 \u2013 Jun 15", "id": "r11"}, {"group": "Guests", "tier": "After June 15", "qty": 0, "price": 1000, "actualQty": 0, "actualTotal": 0, "window": "After Jun 15", "id": "r12"}], "discounts": [{"label": "Discounted Attendance", "qty": 5, "price": 400, "actualQty": 0, "actualTotal": 0, "id": "d1"}, {"label": "Staff Discount Guest", "qty": 4, "price": 0, "actualQty": 0, "actualTotal": 0, "id": "d2"}], "addons": [{"event": "Golf Tournament", "attendees": 25, "cost": 150, "price": 200, "actualAttendees": 0, "actualRevenue": 0, "id": "a1"}, {"event": "Justin Wine Event", "attendees": 5, "cost": 5, "price": 50, "actualAttendees": 0, "actualRevenue": 0, "id": "a2"}, {"event": "Final Night Banquet (upgrade)", "attendees": 30, "cost": 175, "price": 300, "actualAttendees": 0, "actualRevenue": 0, "id": "a3"}, {"event": "Bourbon Tasting", "attendees": 30, "cost": 65, "price": 100, "actualAttendees": 0, "actualRevenue": 0, "id": "a4"}, {"event": "Guest Excursion \u2013 Little Havana", "attendees": 0, "cost": 0, "price": 0, "actualAttendees": 0, "actualRevenue": 0, "id": "a5"}, {"event": "Guest Excursion \u2013 Wynwood Food & Art", "attendees": 0, "cost": 0, "price": 0, "actualAttendees": 0, "actualRevenue": 0, "id": "a6"}], "items": [{"item": "Budget hold", "qty": 0, "cost": 2500, "price": 5000, "actualQty": 0, "actualRevenue": 0, "id": "i1"}, {"item": "Fez", "qty": 40, "cost": 75, "price": 100, "actualQty": 0, "actualRevenue": 0, "id": "i2"}, {"item": "Golf Polo", "qty": 0, "cost": 0, "price": 0, "actualQty": 0, "actualRevenue": 0, "id": "i3"}, {"item": "Standard Jeweled Badge", "qty": 10, "cost": 60, "price": 100, "actualQty": 0, "actualRevenue": 0, "id": "i4"}, {"item": "10K Gold Jeweled Badge", "qty": 2, "cost": 400, "price": 625, "actualQty": 0, "actualRevenue": 0, "id": "i5"}, {"item": "Necktie", "qty": 50, "cost": 14.5, "price": 30, "actualQty": 0, "actualRevenue": 0, "id": "i6"}, {"item": "Hawaiian Shirt", "qty": 0, "cost": 0, "price": 0, "actualQty": 0, "actualRevenue": 0, "id": "i7"}], "other": [{"label": "Fraternity Funding", "budgeted": 150000, "actual": 0, "note": "HQ undergraduate delegate funding", "id": "o1"}, {"label": "FY26 Grant Support", "budgeted": 81995, "actual": 0, "note": "$200K grant model slice", "id": "o2"}, {"label": "Foundation Reimbursement", "budgeted": 84250, "actual": 0, "note": "Foundation-paid line offsets", "id": "o3"}, {"label": "Foundation \u2013 CVI Sponsorship", "budgeted": 0, "actual": 0, "note": "Discuss with CW", "id": "o4"}]};
+const SEED_EXPENSES = [{"category":"Staff & Volunteer Operations","item":"Staff Transportation","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":17.78,"estimated":8000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e1"},{"category":"Staff & Volunteer Operations","item":"Staff Lodging","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":66.67,"estimated":30000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e2"},{"category":"Staff & Volunteer Operations","item":"Staff Per Diem","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":15.56,"estimated":7000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e3"},{"category":"Staff & Volunteer Operations","item":"Staff Appreciation Gift","attendeeType":"All","entity":"Fraternity","description":"???","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e4"},{"category":"Staff & Volunteer Operations","item":"Volunteer Room Blocks","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":8.89,"estimated":4000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e5"},{"category":"Staff & Volunteer Operations","item":"Staff & Volunteer Clothing (Polos, Name Badges)","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":4.44,"estimated":2000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e6"},{"category":"Staff & Volunteer Operations","item":"Tipping (hotel staff, drivers)","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e7"},{"category":"Staff & Volunteer Operations","item":"Volunteer Training Materials","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":0.22,"estimated":100,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e8"},{"category":"Staff & Volunteer Operations","item":"Staff Transportation (Ground)","attendeeType":"All","entity":"Fraternity","description":"Ubers to and from airport","quantity":450,"unitCost":2.22,"estimated":1000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e9"},{"category":"Staff & Volunteer Operations","item":"Valet at Hotel","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":2.22,"estimated":1000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e10"},{"category":"Staff & Volunteer Operations","item":"Preperation Costs","attendeeType":"All","entity":"Fraternity","description":"Covers site visit travel and expenses","quantity":450,"unitCost":4.44,"estimated":2000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e11"},{"category":"Staff & Volunteer Operations","item":"Staff Compensation","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":13.33,"estimated":6000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e12"},{"category":"Staff & Volunteer Operations","item":"Truck Driving/Logistics","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":4.44,"estimated":2000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e13"},{"category":"Convention Technology & Digital Infrastructure","item":"Website and Attendee Hub","attendeeType":"All","entity":"Fraternity","description":"Event App or Microsite Development","quantity":450,"unitCost":75.56,"estimated":34000,"actual":0,"grantable":true,"grantPct":50,"approval":"Draft","approver":"","scales":true,"id":"e14"},{"category":"Convention Technology & Digital Infrastructure","item":"Badge Printing Technology and Registration","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":20,"estimated":9000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e15"},{"category":"Convention Technology & Digital Infrastructure","item":"Onsite Wi-Fi/Tech Rentals","attendeeType":"All","entity":"Fraternity","description":"Encore Fees and Wifi","quantity":450,"unitCost":33.33,"estimated":15000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e16"},{"category":"Convention Technology & Digital Infrastructure","item":"AV for Main Programming","attendeeType":"All","entity":"Fraternity","description":"Pixel Point","quantity":450,"unitCost":122.22,"estimated":55000,"actual":0,"grantable":true,"grantPct":50,"approval":"Draft","approver":"","scales":true,"id":"e17"},{"category":"Attendee Experience & Gift Materials","item":"Convention Gift Bag Items (Socks, Notebook, Pen, Pin, Stickers)","attendeeType":"All","entity":"Fraternity","description":"No Tshirt","quantity":450,"unitCost":35,"estimated":18900,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e18"},{"category":"Attendee Experience & Gift Materials","item":"Product Orders (Fez, Badge, etc)","attendeeType":"Individual","entity":"Fraternity","description":"","quantity":100,"unitCost":50,"estimated":5000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e19"},{"category":"Attendee Experience & Gift Materials","item":"Lanyards, Nametags, Ribbons","attendeeType":"All","entity":"Fraternity","description":"2300 for 550","quantity":450,"unitCost":7,"estimated":3780,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e20"},{"category":"Attendee Experience & Gift Materials","item":"DSP Chapter Flags","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":2.22,"estimated":1000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e21"},{"category":"Attendee Experience & Gift Materials","item":"Main Area Decor","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":22.22,"estimated":10000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e22"},{"category":"Attendee Experience & Gift Materials","item":"Guest Gift Bags","attendeeType":"Guests","entity":"Fraternity","description":"","quantity":70,"unitCost":50,"estimated":3500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e23"},{"category":"Event Production & General Program Needs","item":"Pre Con Golf Tournament","attendeeType":"Individual","entity":"Fraternity","description":"","quantity":25,"unitCost":150,"estimated":3750,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e24"},{"category":"Event Production & General Program Needs","item":"Pilgrim’s Degree Supplies","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e25"},{"category":"Event Production & General Program Needs","item":"Brotherhood Circles","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e26"},{"category":"Event Production & General Program Needs","item":"Welcome Night Decor","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e27"},{"category":"Event Production & General Program Needs","item":"Singing Pilgrims Support (accompanist, supplies)","attendeeType":"All","entity":"Fraternity","description":"Sam Wayne Attendence","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e28"},{"category":"Event Production & General Program Needs","item":"Guest Experience Activities (Day 1/Day 2 Events)","attendeeType":"Guests","entity":"Fraternity","description":"","quantity":70,"unitCost":100,"estimated":7000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e29"},{"category":"Event Production & General Program Needs","item":"Professional MC, Thu–Sat (Fraternity 50%)","attendeeType":"All","entity":"Fraternity","description":"One voice Thu–Sat: fee, 3 nights, airfare ($3,900), split 50/50 with the Foundation. No keynote this year.","quantity":1,"unitCost":1950,"estimated":1950,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e30"},{"category":"Event Production & General Program Needs","item":"Educational Sessions","attendeeType":"Students","entity":"Fraternity","description":"Off-site Explore (Fri) + Apply (Sat) partner fees and 305 Transportation coaches.","quantity":130,"unitCost":192.31,"estimated":25000,"actual":0,"grantable":true,"grantPct":100,"approval":"Draft","approver":"","scales":false,"id":"e31"},{"category":"Event Production & General Program Needs","item":"Pillar Street — Silent auction vendor (Qtego)","attendeeType":"Foundation","entity":"Foundation","description":"Qtego fee ~$4,620 + ~$1,500 staff travel; items donated only. Lever: Givebutter instead saves the full $6,120.","quantity":1,"unitCost":6120,"estimated":6120,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e33"},{"category":"Event Production & General Program Needs","item":"Saturday Alumni Experiences — fixed costs (wine + cigar)","attendeeType":"Foundation","entity":"Foundation","description":"Wine: Justin honorarium $1,500, screen + mic $800 (only if he presents), tablescape $500. Cigar: Miami Tobacco Traders quote $973.70 + ~$150 ashtrays. Per-guest costs sit on the Income add-ons.","quantity":1,"unitCost":3924,"estimated":3924,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e34"},{"category":"Event Production & General Program Needs","item":"Closing Dance Party (tentative) — DJ & lighting","attendeeType":"All","entity":"Fraternity","description":"Sat 9–11 PM, Majestic Foyer. Tentative.","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e35"},{"category":"Event Production & General Program Needs","item":"Banquet Decor","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":6.67,"estimated":3000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e36"},{"category":"Event Production & General Program Needs","item":"History Library","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":2.22,"estimated":1000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e37"},{"category":"Event Production & General Program Needs","item":"Michelle's Closet — Men's Wearhouse kits (fund cost)","attendeeType":"Students","entity":"Foundation","description":"135 kits @ $464.49 = $62,706, less $100 buy-ins paid at checkout. Base case 50 need-based (range $52.7K–$56.2K). Paid from the Foundation's Michelle's Closet fund; Courtney to confirm balance + billing.","quantity":1,"unitCost":54206,"estimated":54206,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e38"},{"category":"Food & Beverage (F&B)","item":"Board Meeting Meals","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":55.56,"estimated":25000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e39"},{"category":"Food & Beverage (F&B)","item":"Welcome Night Reception","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":75,"estimated":40500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e40"},{"category":"Food & Beverage (F&B)","item":"Coffee & Snack Stations","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":12,"estimated":12000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e41"},{"category":"Food & Beverage (F&B)","item":"Guest Reception","attendeeType":"Guests","entity":"Fraternity","description":"","quantity":70,"unitCost":28.57,"estimated":2000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e42"},{"category":"Food & Beverage (F&B)","item":"Alcove Society Reception & Lunch (Palmetto 7)","attendeeType":"Foundation","entity":"Foundation","description":"Friday 12:30–2:00, reception into seated lunch. $5,000 per Foundation budget v6; 2025's top-donor event ran $10,000, so watch this once it's a full lunch.","quantity":1,"unitCost":5000,"estimated":5000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e43"},{"category":"Food & Beverage (F&B)","item":"Pillar Street Catering (Majestic Foyer food stations)","attendeeType":"Foundation","entity":"Foundation","description":"In-house food stations, Majestic Foyer (not off-site). $95/person per Foundation budget v6; Diane + Lana to confirm menu. Counts toward the hotel F&B minimum.","quantity":459,"unitCost":95,"estimated":43605,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e45"},{"category":"Food & Beverage (F&B)","item":"Final Night Banquet","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":190,"estimated":86400,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e47"},{"category":"Ceremony, Awards & Recognition","item":"Pilgrim Certificates","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":0.44,"estimated":200,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e48"},{"category":"Ceremony, Awards & Recognition","item":"Carnations for Bond Eternal","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e49"},{"category":"Ceremony, Awards & Recognition","item":"Color Guard Honorarium & Parking","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":0.44,"estimated":200,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e50"},{"category":"Marketing, Media & Promotions","item":"Photographer & Videographer","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":8.89,"estimated":4000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e51"},{"category":"Marketing, Media & Promotions","item":"Headshots","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":11.11,"estimated":5000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e52"},{"category":"Governance & Board Meetings","item":"Board Meeting AV","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e53"},{"category":"Governance & Board Meetings","item":"Foundation Board Room Costs","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e54"},{"category":"Governance & Board Meetings","item":"Board Requests","attendeeType":"All","entity":"Fraternity","description":"Tom Archer's water","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e55"},{"category":"Governance & Board Meetings","item":"Housing Corp Meeting Expenses","attendeeType":"All","entity":"Housing","description":"","quantity":450,"unitCost":1.11,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e56"},{"category":"Governance & Board Meetings","item":"Board Meeting Products (Swag)","attendeeType":"All","entity":"Fraternity","description":"","quantity":40,"unitCost":50,"estimated":2000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e57"},{"category":"Foundation Stewardship & Advancement","item":"No. 1 Pillar Street — lounge furniture & décor","attendeeType":"Foundation","entity":"Foundation","description":"Hotel lounge furniture + rugs and plants, Majestic Foyer, Wed–Sat.","quantity":1,"unitCost":1500,"estimated":1500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e58"},{"category":"Foundation Stewardship & Advancement","item":"Campaign Celebration","attendeeType":"All","entity":"Foundation","description":"","quantity":0,"unitCost":0,"estimated":0,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e59"},{"category":"Foundation Stewardship & Advancement","item":"No. 1 Pillar Street — Next Era wall, signage, coffee & water","attendeeType":"Foundation","entity":"Foundation","description":"One printed Next Era wall ($1,000); campaign progress on a screen; morning coffee + water ($1,500).","quantity":1,"unitCost":2500,"estimated":2500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e60"},{"category":"Foundation Stewardship & Advancement","item":"Room Drops for Donors","attendeeType":"Foundation","entity":"Foundation","description":"???","quantity":0,"unitCost":0,"estimated":1000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e61"},{"category":"Foundation Stewardship & Advancement","item":"Paddles + donor ribbons","attendeeType":"Foundation","entity":"Foundation","description":"","quantity":1,"unitCost":500,"estimated":500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e62"},{"category":"Shipping, Supplies & Miscellaneous Logistics","item":"General Shipping & Storage","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":8.89,"estimated":4000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e63"},{"category":"Shipping, Supplies & Miscellaneous Logistics","item":"AV Equipment Rentals (if not attached to sessions)","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":4.44,"estimated":2000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e64"},{"category":"Shipping, Supplies & Miscellaneous Logistics","item":"Miscellaneous","attendeeType":"All","entity":"Fraternity","description":"","quantity":450,"unitCost":22.22,"estimated":10000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":true,"id":"e65"},{"category":"Undergraduate Travel Expense","item":"Hotel","attendeeType":"Students","entity":"Fraternity","description":"","quantity":130,"unitCost":200,"estimated":26000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e66"},{"category":"Undergraduate Travel Expense","item":"Meals","attendeeType":"Students","entity":"Fraternity","description":"","quantity":130,"unitCost":100,"estimated":13000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e67"},{"category":"Undergraduate Travel Expense","item":"Airfare","attendeeType":"Students","entity":"Fraternity","description":"","quantity":130,"unitCost":500,"estimated":65000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e68"},{"category":"Event Production & General Program Needs","item":"Pillar Street — storefronts, passports & activities","attendeeType":"Foundation","entity":"Foundation","description":"4 pillar storefronts @ $750 ($3,000), passport cards + prizes ($1,000), storefront activities ($1,500). Per Foundation budget v6.","quantity":1,"unitCost":5500,"estimated":5500,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e100"},{"category":"Convention Technology & Digital Infrastructure","item":"AV — Foundation (Pinnacle foyer package, Friday half + evening operator)","attendeeType":"Foundation","entity":"Foundation","description":"From the Pinnacle Live quote; Courtney + tax counsel to confirm the allocation.","quantity":1,"unitCost":6381,"estimated":6381,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e101"},{"category":"Foundation Stewardship & Advancement","item":"Professional MC, Thu–Sat (Foundation 50%)","attendeeType":"Foundation","entity":"Foundation","description":"Foundation half of the $3,900 MC.","quantity":1,"unitCost":1950,"estimated":1950,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e102"},{"category":"Event Production & General Program Needs","item":"Michelle's Closet — tailoring (Thursday)","attendeeType":"Students","entity":"Foundation","description":"~4 tailors × 8 hrs @ $100/hr, Thursday 10–6 only.","quantity":1,"unitCost":3200,"estimated":3200,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e103"},{"category":"Foundation Stewardship & Advancement","item":"Foundation staff expense","attendeeType":"Foundation","entity":"Foundation","description":"","quantity":1,"unitCost":3000,"estimated":3000,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e104"},{"category":"Foundation Stewardship & Advancement","item":"Donor thank-yous — framed portraits (top 20)","attendeeType":"Foundation","entity":"Foundation","description":"","quantity":20,"unitCost":60,"estimated":1200,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e105"},{"category":"Foundation Stewardship & Advancement","item":"Foundation budget v6 — other lines (signage, donor gifts, fees, contingency)","attendeeType":"Foundation","entity":"Foundation","description":"Brings Foundation spend (excluding Michelle's Closet, including Saturday per-guest costs) to the v6 base total of $99,671. Replace with itemized lines from Foundation_Convention_Budget_2027_v6.xlsx.","quantity":1,"unitCost":11109,"estimated":11109,"actual":0,"grantable":false,"grantPct":0,"approval":"Draft","approver":"","scales":false,"id":"e106"}];
+const SEED_INCOME = {"registration":[{"group":"Undergraduate","tier":"Preregistrants (grantable)","qty":130,"price":0,"actualQty":0,"actualTotal":0,"window":"Grant-covered","id":"r1"},{"group":"Undergraduate","tier":"Early Bird","qty":0,"price":650,"actualQty":0,"actualTotal":0,"window":"Jan 25 – Apr 1","id":"r2"},{"group":"Undergraduate","tier":"Registration","qty":0,"price":750,"actualQty":0,"actualTotal":0,"window":"Apr 1 – Jun 15","id":"r3"},{"group":"Undergraduate","tier":"After June 15","qty":0,"price":950,"actualQty":0,"actualTotal":0,"window":"After Jun 15","id":"r4"},{"group":"Undergraduate","tier":"Host Chapter Discount","qty":0,"price":600,"actualQty":0,"actualTotal":0,"window":"Iota Eps, Alpha Chi, Beta Zeta","id":"r5"},{"group":"Alumni","tier":"Early Bird","qty":125,"price":900,"actualQty":0,"actualTotal":0,"window":"Jan 25 – Apr 1","id":"r6"},{"group":"Alumni","tier":"Registration","qty":100,"price":900,"actualQty":0,"actualTotal":0,"window":"Apr 1 – Jun 15","id":"r7"},{"group":"Alumni","tier":"After June 15","qty":0,"price":1000,"actualQty":0,"actualTotal":0,"window":"After Jun 15","id":"r8"},{"group":"Alumni","tier":"Former Staff","qty":20,"price":600,"actualQty":0,"actualTotal":0,"window":"All times","id":"r9"},{"group":"Guests","tier":"Early Bird","qty":45,"price":900,"actualQty":0,"actualTotal":0,"window":"Jan 25 – Apr 1","id":"r10"},{"group":"Guests","tier":"Registration","qty":30,"price":900,"actualQty":0,"actualTotal":0,"window":"Apr 1 – Jun 15","id":"r11"},{"group":"Guests","tier":"After June 15","qty":0,"price":1000,"actualQty":0,"actualTotal":0,"window":"After Jun 15","id":"r12"}],"discounts":[{"label":"Discounted Attendance","qty":5,"price":400,"actualQty":0,"actualTotal":0,"id":"d1"},{"label":"Staff Discount Guest","qty":4,"price":0,"actualQty":0,"actualTotal":0,"id":"d2"}],"addons":[{"event":"Golf Tournament","attendees":25,"cost":150,"price":200,"actualAttendees":0,"actualRevenue":0,"id":"a1"},{"event":"Wine Tasting — Justin Baldwin (Sat, Palmetto 7)","attendees":34,"cost":170,"price":500,"actualAttendees":0,"actualRevenue":0,"id":"a2"},{"event":"Final Night Banquet (upgrade)","attendees":30,"cost":175,"price":300,"actualAttendees":0,"actualRevenue":0,"id":"a3"},{"event":"Guest Excursion – Little Havana","attendees":0,"cost":0,"price":0,"actualAttendees":0,"actualRevenue":0,"id":"a5"},{"event":"Guest Excursion – Wynwood Food & Art","attendees":0,"cost":0,"price":0,"actualAttendees":0,"actualRevenue":0,"id":"a6"},{"id":"a20","actualAttendees":0,"actualRevenue":0,"event":"Cigar Rolling — Miami Tobacco Traders (Sat, Magnolia Courtyard)","attendees":43,"cost":14,"price":250}],"items":[{"item":"Budget hold","qty":0,"cost":2500,"price":5000,"actualQty":0,"actualRevenue":0,"id":"i1"},{"item":"Fez","qty":40,"cost":75,"price":100,"actualQty":0,"actualRevenue":0,"id":"i2"},{"item":"Golf Polo","qty":0,"cost":0,"price":0,"actualQty":0,"actualRevenue":0,"id":"i3"},{"item":"Standard Jeweled Badge","qty":10,"cost":60,"price":100,"actualQty":0,"actualRevenue":0,"id":"i4"},{"item":"10K Gold Jeweled Badge","qty":2,"cost":400,"price":625,"actualQty":0,"actualRevenue":0,"id":"i5"},{"item":"Necktie","qty":50,"cost":14.5,"price":30,"actualQty":0,"actualRevenue":0,"id":"i6"},{"item":"Hawaiian Shirt","qty":0,"cost":0,"price":0,"actualQty":0,"actualRevenue":0,"id":"i7"}],"other":[{"label":"Fraternity Funding","budgeted":150000,"actual":0,"note":"HQ undergraduate delegate funding","id":"o1"},{"label":"FY26 Grant Support","budgeted":81995,"actual":0,"note":"$200K grant model slice","id":"o2"},{"label":"Foundation Reimbursement","budgeted":129327,"actual":0,"note":"Foundation-tagged costs minus Saturday wine/cigar surplus (ticket revenue is the Foundation's)","id":"o3"},{"label":"Foundation – CVI Sponsorship","budgeted":0,"actual":0,"note":"Discuss with CW","id":"o4"}]};
 const SEED_TRACKER = [];
 const SEED_BUDGET_SETTINGS = { grantTarget:0.40, grantPool:200000, varianceThreshold:0.85 };
 const SEED_SPONSORS = [
@@ -2059,7 +2091,7 @@ function Hub({session}){
           return <button key={t.id} onClick={()=>setTab(t.id)} className="flex items-center gap-2 px-4 py-3 text-sm font-semibold whitespace-nowrap" style={{color:on?C.gold:"#cfe0da",borderBottom:`3px solid ${on?C.gold:"transparent"}`}}><A size={16}/>{t.label}</button>; })}
       </nav>
       <main className="max-w-[1200px] mx-auto px-5 py-7">
-        {tab==="schedule" && <Schedule schedule={schedule} setSchedule={upd.schedule} people={people} blocks={blocks} admin={admin}/>}
+        {tab==="schedule" && <Schedule schedule={schedule} setSchedule={upd.schedule} people={people} blocks={blocks} setBlocks={upd.blocks} admin={admin}/>}
         {tab==="staffplan" && <StaffPlan people={people} blocks={blocks} setBlocks={upd.blocks} schedule={schedule} admin={admin}/>}
         {tab==="budget" && admin && <BudgetSection expenses={expenses} setExpenses={upd.expenses} income={income} setIncome={upd.income} settings={budgetCtx} setSettings={upd.budgetSettings} sponsors={sponsors} setSponsors={upd.sponsors} audit={audit} tracker={tracker} setTracker={upd.tracker} editor={EDITOR_NAME} headcount={headcount}/>}
         {tab==="directory" && <Directory people={people} setPeople={upd.people} vendors={vendors} setVendors={upd.vendors} docs={docs} setDocs={upd.docs} admin={admin}/>}
@@ -2114,7 +2146,43 @@ function MultiSelect({values, onChange, options, placeholder, w=260}){
 }
 
 /* ============================== SCHEDULE ================================ */
-function Schedule({schedule,setSchedule,people,blocks,admin}){
+/* ============================== one-time schedule update (see src/schedulePatch.js) ============================== */
+function SchedulePatchBanner({schedule,setSchedule,blocks,setBlocks}){
+  const [meta,setMeta]=useState(null);
+  const [open,setOpen]=useState(true);
+  useEffect(()=>{ (async()=>{ setMeta((await sget(KEYS.meta))||{}); })(); },[]);
+  const preview=useMemo(()=>previewSchedulePatch(schedule,blocks),[schedule,blocks]);
+  if(!meta || !open) return null;
+  const done=(meta.appliedPatches||[]).includes(PATCH_ID);
+  if(done || preview.pending===0) return null;
+  const tone={ "change":C.nile, "already done":C.pos, "not found":C.warn };
+  const apply=async()=>{
+    setSchedule(preview.next, `Applied ${PATCH_LABEL} (${preview.pending} changes)`);
+    if(setBlocks && JSON.stringify(preview.nextBlocks)!==JSON.stringify(blocks)) setBlocks(preview.nextBlocks, "Synced Staff Plan event blocks to the updated schedule");
+    const fresh=(await sget(KEYS.meta))||{};
+    const m={...fresh, appliedPatches:[...(fresh.appliedPatches||[]), PATCH_ID]};
+    await sset(KEYS.meta,m); setMeta(m);
+  };
+  return <Card style={{borderColor:C.gold,background:C.goldSoft}}>
+    <div className="flex items-start justify-between gap-3 flex-wrap">
+      <div>
+        <h3 className="font-semibold" style={{fontFamily:"Fraunces,serif"}}>{PATCH_LABEL}: {preview.pending} change{preview.pending===1?"":"s"} ready</h3>
+        <p className="text-xs mt-0.5" style={{color:C.muted}}>Preview of the edits against the live schedule. Nothing is saved until you apply. "Not found" means no matching event exists, so that edit is skipped.</p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={()=>setOpen(false)} className="px-3 py-2 rounded-md text-sm font-semibold" style={{border:`1px solid ${C.line}`,background:"#fff"}}>Not now</button>
+        <button onClick={apply} className="px-3 py-2 rounded-md text-sm font-semibold text-white" style={{background:C.deep}}>Apply to live schedule</button>
+      </div>
+    </div>
+    <ul className="mt-3 space-y-1">
+      {preview.log.map(l=><li key={l.n} className="flex items-center gap-2 text-sm"><span className="w-5 text-right" style={{color:C.muted}}>{l.n}.</span><Pill text={l.status} color={tone[l.status]}/><span>{l.label}</span></li>)}
+    </ul>
+    {preview.unmatchedBlocks.length>0 && <div className="mt-3 text-xs" style={{color:C.muted}}><b style={{color:C.ink}}>Staff Plan blocks to review by hand</b> (no matching event, left as-is): {preview.unmatchedBlocks.join(" · ")}</div>}
+    {preview.undescribed.length>0 && <div className="mt-2 text-xs" style={{color:C.muted}}><b style={{color:C.ink}}>Events still without a description</b> (add in Edit): {preview.undescribed.join(" · ")}</div>}
+  </Card>;
+}
+
+function Schedule({schedule,setSchedule,people,blocks,setBlocks,admin}){
   const [filterMode,setFilterMode]=useState("event");
   const [person,setPerson]=useState("");
   const [dayFilter,setDayFilter]=useState("All days");
@@ -2129,7 +2197,7 @@ function Schedule({schedule,setSchedule,people,blocks,admin}){
   const searchFiltered = useMemo(()=>{
     let list = [...schedule];
     if(filterMode==="person" && person) list = list.filter(e=>(e.assignees||[]).includes(person));
-    if(q) list = list.filter(e=>(e.name+(e.rooms||[]).join(" ")+(e.assignees||[]).join(" ")+e.category).toLowerCase().includes(q.toLowerCase()));
+    if(q) list = list.filter(e=>(e.name+" "+(e.description||"")+(e.rooms||[]).join(" ")+(e.assignees||[]).join(" ")+e.category).toLowerCase().includes(q.toLowerCase()));
     return list;
   },[schedule,filterMode,person,q]);
 
@@ -2152,6 +2220,8 @@ function Schedule({schedule,setSchedule,people,blocks,admin}){
 
   return <div className="space-y-5">
     <SectionTitle sub="One schedule — room, AV company &amp; items, and who's responsible all live on each event." right={admin && <button onClick={()=>setAdding(true)} className="flex items-center gap-1.5 px-3 py-2 rounded-md text-white text-sm font-semibold" style={{background:C.deep}}><Plus size={15}/>Add event</button>}>Schedule</SectionTitle>
+
+    {admin && <SchedulePatchBanner schedule={schedule} setSchedule={setSchedule} blocks={blocks} setBlocks={setBlocks}/>}
 
     <Card>
       <div className="flex flex-wrap items-center gap-3">
@@ -2199,6 +2269,7 @@ function EventRow({ev,admin,onEdit,onDelete}){
         <div className="flex items-center gap-2 flex-wrap">
           <span className="font-semibold text-sm" style={{fontFamily:"Fraunces,serif"}}>{ev.name}</span>
         </div>
+        {ev.description && <p className="text-sm mt-1" style={{color:C.ink}}>{ev.description}</p>}
         <div className="flex items-center gap-3 text-xs mt-1 flex-wrap" style={{color:C.muted}}>
           <span className="flex items-center gap-1"><CalendarClock size={12}/>{ev.ongoing?ongoingRangeLabel(ev):ev.allDay?"All day":fmtRange(ev.start,ev.end)}</span>
           {(ev.rooms||[]).map(r=><span key={r} className="flex items-center gap-1"><MapPin size={12}/>{r}</span>)}
@@ -2219,7 +2290,7 @@ function EventRow({ev,admin,onEdit,onDelete}){
   </Card>;
 }
 function EventModal({ev,people,dates,onClose,onSave}){
-  const [f,setF]=useState(ev || {date:"",start:"",end:"",allDay:false,ongoing:false,ongoingDates:[],name:"",category:"",owner:"",rooms:[],setup:"",avNote:"",avCompany:"TBD / Not yet assigned",avItems:[],assignees:[]});
+  const [f,setF]=useState(ev || {date:"",start:"",end:"",allDay:false,ongoing:false,ongoingDates:[],name:"",description:"",category:"",owner:"",rooms:[],setup:"",avNote:"",avCompany:"TBD / Not yet assigned",avItems:[],assignees:[]});
   const [newAssignee,setNewAssignee]=useState("");
   const addAssignee=()=>{ if(newAssignee && !f.assignees.includes(newAssignee)){ setF({...f,assignees:[...f.assignees,newAssignee]}); setNewAssignee(""); } };
   const removeAssignee=(n)=> setF({...f,assignees:f.assignees.filter(x=>x!==n)});
@@ -2237,6 +2308,7 @@ function EventModal({ev,people,dates,onClose,onSave}){
       {f.ongoing && <div className="mb-3"><Field label="Which days does this run?"><MultiSelect values={f.ongoingDates||[]} onChange={v=>setF({...f,ongoingDates:v})} options={dates} w="100%" placeholder="Select day(s)…"/></Field></div>}
       {!f.ongoing && <label className="flex items-center gap-2 text-sm mb-3"><input type="checkbox" checked={f.allDay} onChange={e=>setF({...f,allDay:e.target.checked})} style={{accentColor:C.deep}}/>All day</label>}
       <Field label="Event name"><input value={f.name} onChange={e=>setF({...f,name:e.target.value})} className="w-full mb-3 px-3 py-2 rounded-md text-sm outline-none" style={{border:`1px solid ${C.line}`}}/></Field>
+      <Field label="Description"><textarea value={f.description||""} onChange={e=>setF({...f,description:e.target.value})} rows={3} placeholder="What it is, who it's for, anything staff should know" className="w-full mb-3 px-3 py-2 rounded-md text-sm outline-none" style={{border:`1px solid ${C.line}`}}/></Field>
       <div className="grid grid-cols-2 gap-3 mb-3">
         <Field label="Category"><input value={f.category} onChange={e=>setF({...f,category:e.target.value})} placeholder="e.g. Ceremony" className="w-full px-3 py-2 rounded-md text-sm outline-none" style={{border:`1px solid ${C.line}`}}/></Field>
         <Field label="Owner"><input value={f.owner} onChange={e=>setF({...f,owner:e.target.value})} placeholder="e.g. Andrew" className="w-full px-3 py-2 rounded-md text-sm outline-none" style={{border:`1px solid ${C.line}`}}/></Field>
@@ -2282,6 +2354,7 @@ function ScheduleTimeline({date,evs,admin,onEdit}){
                 {(ev.rooms||[]).map(r=><span key={r} className="flex items-center gap-1"><MapPin size={11}/>{r}</span>)}
                 {(ev.assignees||[]).length>0 && <span className="flex items-center gap-1"><User size={11}/>{ev.assignees.join(", ")}</span>}
               </div>
+              {ev.description && <p className="text-xs mt-1" style={{color:C.ink}}>{ev.description}</p>}
             </div>
           </div>; })}
       </div>
@@ -2318,7 +2391,7 @@ function ScheduleCalendar({date,evs,admin,onEdit}){
             {hours.map(m=><div key={m} className="absolute left-0 right-0" style={{top:(m-dayMin)*PXPM,borderTop:`1px solid ${C.line}`}}/>)}
             {items.map(it=>{ const ev=it.ev; const col=catColor(ev.category); const top=(it.s-dayMin)*PXPM; const h=Math.max(22,(it.e2-it.s)*PXPM-2);
               const widthPct=100/ncols; const leftPct=it.col*widthPct;
-              return <div key={ev.id} onClick={()=>admin&&onEdit(ev)} title={`${ev.name} · ${fmtRange(ev.start,ev.end)}`}
+              return <div key={ev.id} onClick={()=>admin&&onEdit(ev)} title={`${ev.name} · ${fmtRange(ev.start,ev.end)}${ev.description?"\n\n"+ev.description:""}`}
                 className="absolute rounded-md px-2 py-1 overflow-hidden" style={{top,height:h,left:`calc(${leftPct}% + 4px)`,width:`calc(${widthPct}% - 8px)`,background:col+"1f",borderLeft:`3px solid ${col}`,cursor:admin?"pointer":"default"}}>
                 <div className="text-[11px] font-semibold leading-tight truncate" style={{color:C.ink}}>{ev.name}</div>
                 <div className="text-[10px] truncate" style={{color:C.muted}}>{fmtRange(ev.start,ev.end)}</div>
@@ -2575,6 +2648,41 @@ function FaqModal({onClose,onSave}){
 }
 
 /* ============================== BUDGET (full Budget Hub, rolled in) ============================== */
+/* ============================== one-time budget update (see src/budgetPatch.js) ============================== */
+function BudgetPatchBanner({expenses,setExpenses,income,setIncome,tracker,settings}){
+  const [meta,setMeta]=useState(null);
+  const [open,setOpen]=useState(true);
+  useEffect(()=>{ (async()=>{ setMeta((await sget(KEYS.meta))||{}); })(); },[]);
+  const preview=useMemo(()=>previewBudgetPatch(expenses,income,tracker,(r)=>effEstimated(r,settings)),[expenses,income,tracker,settings]);
+  if(!meta || !open) return null;
+  if((meta.appliedPatches||[]).includes(BUDGET_PATCH_ID) || preview.pending===0) return null;
+  const tone={ "change":C.nile, "already done":C.pos, "not found":C.warn };
+  const sgn=(n)=>(n>=0?"+":"")+usd(n);
+  const apply=async()=>{
+    setExpenses(preview.nextExpenses, `Applied ${BUDGET_PATCH_LABEL} — expenses`);
+    setIncome(preview.nextIncome, `Applied ${BUDGET_PATCH_LABEL} — income`);
+    const fresh=(await sget(KEYS.meta))||{};
+    const m={...fresh, appliedPatches:[...(fresh.appliedPatches||[]), BUDGET_PATCH_ID]};
+    await sset(KEYS.meta,m); setMeta(m);
+  };
+  return <Card style={{borderColor:C.gold,background:C.goldSoft}}>
+    <div className="flex items-start justify-between gap-3 flex-wrap">
+      <div>
+        <h3 className="font-semibold" style={{fontFamily:"Fraunces,serif"}}>{BUDGET_PATCH_LABEL}: {preview.pending} change{preview.pending===1?"":"s"} ready</h3>
+        <p className="text-xs mt-0.5" style={{color:C.muted}}>Lines up the budget with Foundation budget v6, the Michelle's Closet proposal and the new schedule. Nothing is saved until you apply. Lines with tracked actuals are zeroed, never deleted.</p>
+        <p className="text-sm mt-2"><b>Effect on the convention budget:</b> expense {sgn(preview.delta.expense)} · income {sgn(preview.delta.income)} · <b style={{color:preview.delta.net>=0?C.pos:C.neg}}>net {sgn(preview.delta.net)}</b></p>
+      </div>
+      <div className="flex gap-2">
+        <button onClick={()=>setOpen(false)} className="px-3 py-2 rounded-md text-sm font-semibold" style={{border:`1px solid ${C.line}`,background:"#fff"}}>Not now</button>
+        <button onClick={apply} className="px-3 py-2 rounded-md text-sm font-semibold text-white" style={{background:C.deep}}>Apply to live budget</button>
+      </div>
+    </div>
+    <ul className="mt-3 space-y-1">
+      {preview.log.map(l=><li key={l.n} className="flex items-center gap-2 text-sm"><span className="w-5 text-right" style={{color:C.muted}}>{l.n}.</span><Pill text={l.status} color={tone[l.status]}/><span>{l.label}</span></li>)}
+    </ul>
+  </Card>;
+}
+
 function BudgetSection({expenses,setExpenses,income,setIncome,settings,setSettings,sponsors,setSponsors,audit,tracker,setTracker,editor,headcount}){
   const [sub,setSub]=useState("overview");
   const SUBS=[{id:"overview",label:"Overview"},{id:"budget",label:"Budget"},{id:"tracker",label:"Expense Tracker"},{id:"income",label:"Income"},{id:"foundation",label:"Foundation"},{id:"housing",label:"Housing"},{id:"cashflow",label:"Cash Flow"},{id:"activity",label:"Activity"}];
@@ -2582,6 +2690,7 @@ function BudgetSection({expenses,setExpenses,income,setIncome,settings,setSettin
     <div className="flex items-center rounded-md overflow-hidden w-fit" style={{border:`1px solid ${C.line}`}}>
       {SUBS.map(s=><button key={s.id} onClick={()=>setSub(s.id)} className="px-4 py-2 text-sm font-semibold" style={{background:sub===s.id?C.deep:"#fff",color:sub===s.id?"#fff":C.ink}}>{s.label}</button>)}
     </div>
+    <BudgetPatchBanner expenses={expenses} setExpenses={setExpenses} income={income} setIncome={setIncome} tracker={tracker} settings={settings}/>
     {sub==="overview" && <BudgetOverview expenses={expenses} income={income} tracker={tracker} settings={settings} sponsors={sponsors} headcount={headcount} go={setSub}/>}
     {sub==="budget" && <Budget expenses={expenses} setExpenses={setExpenses} settings={settings} setSettings={setSettings} editor={editor} tracker={tracker}/>}
     {sub==="tracker" && <Tracker tracker={tracker} setTracker={setTracker} expenses={expenses}/>}
