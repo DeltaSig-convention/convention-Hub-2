@@ -2,8 +2,27 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { LayoutDashboard, Wallet, CalendarClock, HelpCircle, Map as MapIcon, Users, Search, Plus, Trash2, X, ChevronDown, MapPin, Phone, FileText, FileSpreadsheet, Upload, Image as ImageIcon, ArrowLeftRight, User, CalendarDays, Pencil, Check, Loader2, RefreshCw, Download, Copy, ExternalLink, History, ShieldCheck, AlertTriangle, Handshake, Building2, GraduationCap, Clock, Tv } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, PieChart, Pie, CartesianGrid } from "recharts";
 import { supabase, sget, sset, signInWithPassword, signOut, getSession, uploadMapImage } from "./supabase.js";
-import { PATCH_ID, PATCH_LABEL, previewSchedulePatch } from "./schedulePatch.js";
-import { BUDGET_PATCH_ID, BUDGET_PATCH_LABEL, previewBudgetPatch } from "./budgetPatch.js";
+import * as SchedNov5 from "./schedulePatch.js";
+import * as SchedNov10 from "./schedulePatchNov10.js";
+import * as BudgetNov5 from "./budgetPatch.js";
+import * as BudgetNov10 from "./budgetPatchNov10.js";
+/* One-time updates, applied in order. Each banner appears only after the ones before it are applied. */
+const SCHEDULE_PATCHES = [
+  { id: SchedNov5.PATCH_ID, label: SchedNov5.PATCH_LABEL, preview: SchedNov5.previewSchedulePatch },
+  { id: SchedNov10.PATCH_ID, label: SchedNov10.PATCH_LABEL, preview: SchedNov10.previewSchedulePatch },
+];
+const BUDGET_PATCHES = [
+  { id: BudgetNov5.BUDGET_PATCH_ID, label: BudgetNov5.BUDGET_PATCH_LABEL, preview: BudgetNov5.previewBudgetPatch,
+    blurb: "Lines up the budget with Foundation budget v6, the Michelle's Closet proposal and the new schedule. Nothing is saved until you apply. Lines with tracked actuals are zeroed, never deleted." },
+  { id: BudgetNov10.BUDGET_PATCH_ID, label: BudgetNov10.BUDGET_PATCH_LABEL, preview: BudgetNov10.previewBudgetPatch,
+    blurb: "Adds the $5K Housing Experience + History Library line (Housing pays, NHC reimburses) and nets Housing to $0. Saturday pricing, catering and other Foundation numbers wait for the Foundation team. Nothing is saved until you apply." },
+];
+/* First patch in the list that isn't applied yet (patches with nothing to change count as done). */
+function nextPatch(list, meta, pendingOf){
+  const applied=(meta&&meta.appliedPatches)||[];
+  for(const p of list){ if(applied.includes(p.id)) continue; if(pendingOf(p)>0) return p; }
+  return null;
+}
 
 /* Storage + auth + image uploads come from Supabase. See src/supabase.js */
 /* Storage + auth + image uploads now come from Supabase. See src/supabase.js */
@@ -2151,10 +2170,11 @@ function SchedulePatchBanner({schedule,setSchedule,blocks,setBlocks}){
   const [meta,setMeta]=useState(null);
   const [open,setOpen]=useState(true);
   useEffect(()=>{ (async()=>{ setMeta((await sget(KEYS.meta))||{}); })(); },[]);
-  const preview=useMemo(()=>previewSchedulePatch(schedule,blocks),[schedule,blocks]);
+  const previews=useMemo(()=>Object.fromEntries(SCHEDULE_PATCHES.map(p=>[p.id,p.preview(schedule,blocks)])),[schedule,blocks]);
   if(!meta || !open) return null;
-  const done=(meta.appliedPatches||[]).includes(PATCH_ID);
-  if(done || preview.pending===0) return null;
+  const patch=nextPatch(SCHEDULE_PATCHES, meta, p=>previews[p.id].pending);
+  if(!patch) return null;
+  const preview=previews[patch.id], PATCH_ID=patch.id, PATCH_LABEL=patch.label;
   const tone={ "change":C.nile, "already done":C.pos, "not found":C.warn };
   const apply=async()=>{
     setSchedule(preview.next, `Applied ${PATCH_LABEL} (${preview.pending} changes)`);
@@ -2653,9 +2673,11 @@ function BudgetPatchBanner({expenses,setExpenses,income,setIncome,tracker,settin
   const [meta,setMeta]=useState(null);
   const [open,setOpen]=useState(true);
   useEffect(()=>{ (async()=>{ setMeta((await sget(KEYS.meta))||{}); })(); },[]);
-  const preview=useMemo(()=>previewBudgetPatch(expenses,income,tracker,(r)=>effEstimated(r,settings)),[expenses,income,tracker,settings]);
+  const previews=useMemo(()=>Object.fromEntries(BUDGET_PATCHES.map(p=>[p.id,p.preview(expenses,income,tracker,(r)=>effEstimated(r,settings))])),[expenses,income,tracker,settings]);
   if(!meta || !open) return null;
-  if((meta.appliedPatches||[]).includes(BUDGET_PATCH_ID) || preview.pending===0) return null;
+  const patch=nextPatch(BUDGET_PATCHES, meta, p=>previews[p.id].pending);
+  if(!patch) return null;
+  const preview=previews[patch.id], BUDGET_PATCH_ID=patch.id, BUDGET_PATCH_LABEL=patch.label;
   const tone={ "change":C.nile, "already done":C.pos, "not found":C.warn };
   const sgn=(n)=>(n>=0?"+":"")+usd(n);
   const apply=async()=>{
@@ -2669,7 +2691,7 @@ function BudgetPatchBanner({expenses,setExpenses,income,setIncome,tracker,settin
     <div className="flex items-start justify-between gap-3 flex-wrap">
       <div>
         <h3 className="font-semibold" style={{fontFamily:"Fraunces,serif"}}>{BUDGET_PATCH_LABEL}: {preview.pending} change{preview.pending===1?"":"s"} ready</h3>
-        <p className="text-xs mt-0.5" style={{color:C.muted}}>Lines up the budget with Foundation budget v6, the Michelle's Closet proposal and the new schedule. Nothing is saved until you apply. Lines with tracked actuals are zeroed, never deleted.</p>
+        <p className="text-xs mt-0.5" style={{color:C.muted}}>{patch.blurb}</p>
         <p className="text-sm mt-2"><b>Effect on the convention budget:</b> expense {sgn(preview.delta.expense)} · income {sgn(preview.delta.income)} · <b style={{color:preview.delta.net>=0?C.pos:C.neg}}>net {sgn(preview.delta.net)}</b></p>
       </div>
       <div className="flex gap-2">
