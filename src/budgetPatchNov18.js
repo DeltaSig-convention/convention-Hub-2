@@ -16,6 +16,9 @@
    3. Adds "Staff Ed Time" ($0, Direct-Ed, needs daily time records).
    4. Adds "Direct Mail – Alumni Registration Drive" ($3,000, Fraternity).
 
+   0. Undergrad travel is no longer paid: airfare line removed, category
+      renamed "Undergraduate Delegate Hotel & Meals".
+
    Income is NOT changed. The Foundation reimbursement vs. grantable
    comparison is a read-only display in App.jsx.
    ===================================================================== */
@@ -84,11 +87,31 @@ const DIRECT_ED = [
 ];
 const isDirectEd = (r) => DIRECT_ED.some((d) => d.re.test(norm(r.item))) || /^staff ed time/.test(norm(r.item));
 
-/* Counsel's UG-Shared lines: all Undergraduate Travel Expense lines (hotel room nights, meals, stipends). */
-const isUgShared = (r) => /^undergraduate travel/i.test(r.category || "") ||
+/* Counsel's UG-Shared lines: undergrad delegate hotel room nights + meals (incl. stipends).
+   The Fraternity no longer pays undergrad travel, so the old "Undergraduate Travel Expense"
+   category is renamed and any airfare line is removed (op 0). */
+const UG_CAT = "Undergraduate Delegate Hotel & Meals";
+const isUgShared = (r) => /^undergraduate (travel|delegate hotel)/i.test(r.category || "") ||
   /meal stipend|undergrad(uate)? (hotel|room night|meal)/.test(norm(r.item));
 
 const OPS = [
+  { n: 0, label: "Undergrad travel is no longer paid: remove the airfare line; rename the category to “Undergraduate Delegate Hotel & Meals”",
+    run: (st) => {
+      const tagged = st.tagged || new Set();
+      let missing = true;
+      const exp = [];
+      for (const r of st.exp) {
+        const ugCat = /^undergraduate travel/i.test(r.category || "");
+        if (ugCat && /airfare|flight|travel/.test(norm(r.item))) {
+          missing = false;
+          if (tagged.has(r.id)) exp.push({ ...r, quantity: 0, unitCost: 0, estimated: 0, category: UG_CAT, description: "Removed — the Fraternity no longer pays undergrad travel." });
+          continue;
+        }
+        if (ugCat) { missing = false; exp.push({ ...r, category: UG_CAT }); continue; }
+        exp.push(r);
+      }
+      return { st: { ...st, exp }, missing };
+    } },
   { n: 1, label: "Direct-Ed (100%): Educational Sessions + six undergrad education lines (new ones added at $0)",
     run: (st) => {
       let cur = st;
@@ -99,7 +122,7 @@ const OPS = [
       }
       return { st: cur };
     } },
-  { n: 2, label: "UG-Shared (50%): Undergraduate Travel — hotel room nights and meals",
+  { n: 2, label: "UG-Shared (50%): undergrad delegate hotel room nights and meals",
     run: (st) => tag(st, isUgShared, "UG-Shared") },
   { n: 3, label: "Add “Staff Ed Time” — $0, Direct-Ed, counts only once daily time records exist",
     run: (st) => upsert(st, /^staff ed time/, {
@@ -119,7 +142,7 @@ const OPS = [
 const sig = (st) => JSON.stringify({ e: st.exp.map(({ id, ...r }) => r) });
 
 export function previewBudgetPatch(expenses, income, tracker, estimator = est) {
-  let st = { exp: expenses || [], inc: income || {} };
+  let st = { exp: expenses || [], inc: income || {}, tagged: new Set((tracker || []).map((t) => t.budgetLineId).filter(Boolean)) };
   const log = [];
   for (const op of OPS) {
     const before = sig(st);
